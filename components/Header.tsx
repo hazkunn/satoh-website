@@ -8,10 +8,11 @@ export default function Header() {
 
   const navItems = [
     { href: "/", label: "ホーム" },
-    { href: "/manufacturers", label: "取引メーカー" },
     { href: "/services", label: "サービス紹介" },
-    { href: "/inventory", label: "商品在庫案内" },
+    { href: "/exhibition", label: "展示会" },
     { href: "/company", label: "会社概要" },
+    { href: "/inventory", label: "商品在庫案内" },
+    { href: "/manufacturers", label: "取引メーカー" },
     { href: "/inquiry", label: "お問い合わせ" },
   ];
 

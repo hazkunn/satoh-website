@@ -40,7 +40,7 @@ export default function CompanyPage() {
                     { label: "英語表記", value: "SATO SANGYO CO., LTD." },
                     {
                       label: "所在地",
-                      value: "〒000-0000\n東京都千代田区○○町0-0-0\n○○ビル○F",
+                      value: "〒799-0404\n愛媛県四国中央市三島宮川1丁目10-19",
                     },
                     { label: "代表者", value: "代表取締役 佐藤 ○○" },
                     {
@@ -125,10 +125,10 @@ export default function CompanyPage() {
                   />
                 </svg>
                 <p className="mb-2">
-                  〒000-0000 東京都千代田区○○町0-0-0 ○○ビル○F
+                  〒799-0404 愛媛県四国中央市三島宮川1丁目10-19
                 </p>
                 <p className="text-sm">
-                  ○○線「○○駅」より徒歩○分
+                  JR予讃線「伊予三島駅」より徒歩約10分
                 </p>
               </div>
             </div>
@@ -146,7 +146,7 @@ export default function CompanyPage() {
             <div className="flex flex-wrap justify-center gap-4 mb-8">
               <div className="bg-white rounded-lg px-8 py-4 shadow-sm">
                 <p className="text-sm text-gray-500 mb-1">お電話でのお問い合わせ</p>
-                <p className="text-2xl font-bold text-blue-900">00-0000-0000</p>
+                <p className="text-2xl font-bold text-blue-900">0896-23-2031</p>
                 <p className="text-xs text-gray-400 mt-1">
                   受付時間 平日 9:00 - 17:00
                 </p>

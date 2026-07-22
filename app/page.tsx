@@ -6,34 +6,65 @@ export default function Home() {
       {/* ===== HERO SECTION ===== */}
       <section className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
-          <div className="max-w-3xl">
-            <p className="text-blue-300 font-semibold tracking-wide text-sm md:text-base mb-4">
-              産業資材・設備機器のトータルサプライヤー
-            </p>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-              必要な製品を、
-              <br />
-              <span className="text-blue-200">最適な形でご提供します。</span>
-            </h1>
-            <p className="text-lg md:text-xl text-blue-200 mb-10 leading-relaxed">
-              型番不明・廃番品・初めてのお取引——どんな条件でも構いません。
-              お客様からいただいた情報をもとに、最適な製品のマッチング、
-              代替品のご提案、在庫確認までワンストップで対応いたします。
-              <br />
-              <span className="text-blue-300 text-base">愛媛県内のお客様を迅速にサポートいたします。</span>
-            </p>
-            <div className="flex flex-wrap gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 items-center">
+            {/* Left side — existing hero content (60%) */}
+            <div className="lg:col-span-3">
+              <p className="text-blue-300 font-semibold tracking-wide text-sm md:text-base mb-4">
+                産業資材・設備機器のトータルサプライヤー
+              </p>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+                必要な製品を、
+                <br />
+                <span className="text-blue-200">最適な形でご提供します。</span>
+              </h1>
+              <p className="text-lg md:text-xl text-blue-200 mb-10 leading-relaxed">
+                型番不明・廃番品・初めてのお取引——どんな条件でも構いません。
+                お客様からいただいた情報をもとに、最適な製品のマッチング、
+                代替品のご提案、在庫確認までワンストップで対応いたします。
+                <br />
+                <span className="text-blue-300 text-base">愛媛県内のお客様を迅速にサポートいたします。</span>
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <Link
+                  href="/inquiry"
+                  className="inline-block bg-white text-blue-900 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors duration-200 shadow-lg"
+                >
+                  アイテムを依頼する
+                </Link>
+                <Link
+                  href="/inventory"
+                  className="inline-block border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors duration-200"
+                >
+                  在庫商品を確認する
+                </Link>
+              </div>
+            </div>
+
+            {/* Right side — Exhibition / Technomesse box (40%) */}
+            <div className="lg:col-span-2">
               <Link
-                href="/inquiry"
-                className="inline-block bg-white text-blue-900 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors duration-200 shadow-lg"
+                href="/exhibition"
+                className="block bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-8 hover:bg-white/20 transition-all duration-300 group"
               >
-                アイテムを依頼する
-              </Link>
-              <Link
-                href="/inventory"
-                className="inline-block border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors duration-200"
-              >
-                在庫商品を確認する
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full">
+                    展示会
+                  </span>
+                </div>
+                <h2 className="text-2xl md:text-3xl font-bold mb-1">
+                  テクノメッセ
+                </h2>
+                <p className="text-blue-200 text-sm mb-4">TECHNOMESSE</p>
+                <p className="text-blue-100 text-sm leading-relaxed mb-6">
+                  最新の産業技術・製品が一堂に集う展示会。
+                  実際に製品に触れ、専門スタッフが直接ご説明いたします。
+                </p>
+                <span className="inline-flex items-center gap-1 text-white font-semibold text-sm group-hover:gap-2 transition-all">
+                  詳細を見る
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m9 5 7 7-7 7" />
+                  </svg>
+                </span>
               </Link>
             </div>
           </div>
@@ -215,7 +246,7 @@ export default function Home() {
               単なる製品販売ではなく、「探す」から「届ける」までを一貫して代行。
               お客様の負担を徹底的に削減します。
               <br />
-              <span className="text-gray-400 text-sm">所在地：愛媛県松山市</span>
+              <span className="text-gray-400 text-sm">所在地：愛媛県四国中央市</span>
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

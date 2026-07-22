@@ -91,7 +91,7 @@ ${formData.message}`
                   <div>
                     <p className="text-sm text-gray-500 mb-1">お電話</p>
                     <p className="text-xl font-bold text-blue-900">
-                      00-0000-0000
+                      0896-23-2031
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
                       受付時間 平日 9:00 - 17:00
@@ -117,7 +117,7 @@ ${formData.message}`
                   <div>
                     <p className="text-sm text-gray-500 mb-1">FAX</p>
                     <p className="text-lg font-bold text-blue-900">
-                      00-0000-0001
+                      0896-24-1065
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
                       24時間受付
