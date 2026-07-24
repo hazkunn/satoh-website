@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAllCategories, getProductBySlug } from "@/lib/inventory";
+import { getSearchIndex } from "@/lib/inventory";
 
 export type SearchResult = {
   name: string;
@@ -27,132 +27,110 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ results: [] });
     }
 
+    // Use precomputed index (single pass, O(n) per search)
+    const { products, brands } = getSearchIndex();
     const results: SearchResult[] = [];
     const seen = new Set<string>();
 
-    const categories = getAllCategories();
+    for (let i = 0; i < products.length; i++) {
+      const p = products[i];
+      if (seen.has(p.slug)) continue;
 
-    for (const cat of categories) {
-      for (const item of cat.items) {
-        const product = getProductBySlug(item.slug);
-        if (!product) continue;
+      // 1. Match product name (bidirectional)
+      if (p.nameLower.includes(q) || q.includes(p.nameLower)) {
+        seen.add(p.slug);
+        results.push({
+          name: p.name,
+          slug: p.slug,
+          category: p.category,
+          url: p.url,
+          matchType: "name",
+          snippet: p.name,
+        });
+        continue;
+      }
 
-        // 1. Search product name
-        if (product.name.toLowerCase().includes(q)) {
-          if (!seen.has(product.slug)) {
-            seen.add(product.slug);
-            results.push({
-              name: product.name,
-              slug: product.slug,
-              category: product.category,
-              url: `/inventory/${product.slug}`,
-              matchType: "name",
-              snippet: product.name,
-            });
-          }
-          continue;
+      // 2. Match category (bidirectional)
+      if (p.categoryLower.includes(q) || q.includes(p.categoryLower)) {
+        seen.add(p.slug);
+        results.push({
+          name: p.name,
+          slug: p.slug,
+          category: p.category,
+          url: p.url,
+          matchType: "category",
+          snippet: `カテゴリ: ${p.category}`,
+        });
+        continue;
+      }
+
+      // 3. Match model numbers (bidirectional)
+      let matched = false;
+      for (const m of p.modelsLower) {
+        if (m.includes(q) || q.includes(m)) {
+          seen.add(p.slug);
+          results.push({
+            name: p.name,
+            slug: p.slug,
+            category: p.category,
+            url: p.url,
+            matchType: "model",
+            snippet: `型番: ${p.models[p.modelsLower.indexOf(m)]}`,
+          });
+          matched = true;
+          break;
         }
+      }
+      if (matched) continue;
 
-        // 2. Search category name
-        if (product.category.toLowerCase().includes(q)) {
-          if (!seen.has(product.slug)) {
-            seen.add(product.slug);
-            results.push({
-              name: product.name,
-              slug: product.slug,
-              category: product.category,
-              url: `/inventory/${product.slug}`,
-              matchType: "category",
-              snippet: `カテゴリ: ${product.category}`,
-            });
-          }
-          continue;
+      // 4. Match specifications (bidirectional)
+      for (const s of p.specs) {
+        const lab = s.label.toLowerCase();
+        const val = s.value.toLowerCase();
+        if (lab.includes(q) || q.includes(lab) || val.includes(q) || q.includes(val)) {
+          seen.add(p.slug);
+          results.push({
+            name: p.name,
+            slug: p.slug,
+            category: p.category,
+            url: p.url,
+            matchType: "spec",
+            snippet: `${s.label}: ${s.value}`,
+          });
+          matched = true;
+          break;
         }
+      }
+      if (matched) continue;
 
-        // 3. Search model numbers
-        if (product.models && product.models.length > 0) {
-          const matchedModel = product.models.find((m) =>
-            m.toLowerCase().includes(q)
-          );
-          if (matchedModel) {
-            if (!seen.has(product.slug)) {
-              seen.add(product.slug);
-              results.push({
-                name: product.name,
-                slug: product.slug,
-                category: product.category,
-                url: `/inventory/${product.slug}`,
-                matchType: "model",
-                snippet: `型番: ${matchedModel}`,
-              });
-            }
-            continue;
-          }
-        }
-
-        // 4. Search specifications
-        if (product.specifications && product.specifications.length > 0) {
-          const matchedSpec = product.specifications.find(
-            (s) =>
-              s.label.toLowerCase().includes(q) ||
-              s.value.toLowerCase().includes(q)
-          );
-          if (matchedSpec) {
-            if (!seen.has(product.slug)) {
-              seen.add(product.slug);
-              results.push({
-                name: product.name,
-                slug: product.slug,
-                category: product.category,
-                url: `/inventory/${product.slug}`,
-                matchType: "spec",
-                snippet: `${matchedSpec.label}: ${matchedSpec.value}`,
-              });
-            }
-            continue;
-          }
-        }
-
-        // 5. Search description
-        if (product.description.toLowerCase().includes(q)) {
-          if (!seen.has(product.slug)) {
-            seen.add(product.slug);
-            results.push({
-              name: product.name,
-              slug: product.slug,
-              category: product.category,
-              url: `/inventory/${product.slug}`,
-              matchType: "name",
-              snippet: product.description.substring(0, 100),
-            });
-          }
-        }
+      // 5. Match description
+      if (p.descriptionLower.includes(q)) {
+        seen.add(p.slug);
+        results.push({
+          name: p.name,
+          slug: p.slug,
+          category: p.category,
+          url: p.url,
+          matchType: "name",
+          snippet: p.description.substring(0, 100),
+        });
       }
     }
 
-    // Also search brand names in specifications
-    for (const cat of categories) {
-      for (const item of cat.items) {
-        const product = getProductBySlug(item.slug);
-        if (!product || !product.specifications) continue;
-        if (seen.has(product.slug)) continue;
-
-        const brandSpec = product.specifications.find(
-          (s) =>
-            s.label.includes("メーカー") &&
-            s.value.toLowerCase().includes(q)
-        );
-        if (brandSpec) {
-          seen.add(product.slug);
-          results.push({
-            name: product.name,
-            slug: product.slug,
-            category: product.category,
-            url: `/inventory/${product.slug}`,
-            matchType: "brand",
-            snippet: `対応メーカー: ${brandSpec.value}`,
-          });
-        }
+    // 6. Brand search (pre-indexed — O(brands) instead of O(products × specs))
+    for (const b of brands) {
+      const p = products[b.productIdx];
+      if (seen.has(p.slug)) continue;
+      if (b.brandLower.includes(q) || q.includes(b.brandLower)) {
+        seen.add(p.slug);
+        results.push({
+          name: p.name,
+          slug: p.slug,
+          category: p.category,
+          url: p.url,
+          matchType: "brand",
+          snippet: `対応メーカー: ${b.brandValue}`,
+        });
       }
     }
 

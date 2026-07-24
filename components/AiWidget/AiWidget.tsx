@@ -30,6 +30,8 @@ function loadMessages(): Message[] {
 
 export default function AiWidget() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [messages, setMessages] = useState<Message[]>(() => {
     const saved = loadMessages();
     if (saved.length > 0) return saved;
@@ -52,6 +54,22 @@ export default function AiWidget() {
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
+
+  // Detect mobile
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // On mobile, close the banner when the user scrolls
+  useEffect(() => {
+    if (!isMobile || !isOpen) return;
+    const handleScroll = () => setIsOpen(false);
+    window.addEventListener("scroll", handleScroll, { once: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isMobile, isOpen]);
 
   // Auto-dismiss error after 5s
   useEffect(() => {
@@ -129,7 +147,7 @@ export default function AiWidget() {
 
       if (data.redirectUrl) {
         // If AI wants to redirect, close chat and navigate
-        setIsOpen(false);
+        setIsPanelOpen(false);
         router.push(data.redirectUrl);
         return;
       }
@@ -233,39 +251,74 @@ export default function AiWidget() {
     return parts.length > 0 ? parts : content;
   };
 
+  const handleToggle = () => {
+    if (isMobile) setIsOpen((prev) => !prev);
+  };
+
+  const handleMouseEnter = () => {
+    if (!isMobile) setIsOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    if (!isMobile) setIsOpen(false);
+  };
+
   return (
     <>
-      {/* Floating button */}
-      <div className="fixed bottom-20 right-0 z-50">
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-l-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 cursor-pointer"
-          aria-label="AIチャットを開く"
-          title="AIに質問する"
+      {/* Wrapper with hover/click detection for reveal */}
+      <div
+        className="fixed bottom-20 right-0 z-50"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        {/* Always-visible clickable tab tip on the right edge */}
+        <div
+          className="absolute right-0 top-0 w-3 h-12 cursor-pointer z-10"
+          onClick={handleToggle}
+          aria-hidden="true"
         >
-          {/* AI icon */}
-          <svg
-            className="w-5 h-5 flex-shrink-0"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+          <div className="w-[6px] h-full bg-gradient-to-b from-blue-600 to-blue-700 rounded-l-sm ml-auto" />
+        </div>
+
+        {/* Sliding button container */}
+        <div
+          className={`transition-transform duration-300 ease-out ${
+            isOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+        >
+          <button
+            onClick={() => {
+              setIsPanelOpen(!isPanelOpen);
+              if (isMobile) setIsOpen(false);
+            }}
+            className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-l-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 cursor-pointer"
+            aria-label="AIチャットを開く"
+            title="AIに質問する"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M13 10V3L4 14h7v7l9-11h-7z"
-            />
-          </svg>
-          {/* Ribbon / label */}
-          <span className="text-sm font-bold whitespace-nowrap tracking-wide">
-            AIに質問
-          </span>
-        </button>
+            {/* AI icon */}
+            <svg
+              className="w-5 h-5 flex-shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              />
+            </svg>
+            {/* Ribbon / label */}
+            <span className="text-sm font-bold whitespace-nowrap tracking-wide">
+              AIに質問
+            </span>
+          </button>
+        </div>
       </div>
 
       {/* Chat panel */}
-      {isOpen && (
+      {isPanelOpen && (
         <div className="fixed bottom-36 right-0 z-50 w-80 sm:w-96 h-[500px] max-h-[70vh] bg-white rounded-l-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden">
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-3 flex items-center justify-between">
@@ -286,7 +339,7 @@ export default function AiWidget() {
               <span className="font-bold text-sm">AI アシスタント</span>
             </div>
             <button
-              onClick={() => setIsOpen(false)}
+              onClick={() => setIsPanelOpen(false)}
               className="text-white/80 hover:text-white cursor-pointer"
               aria-label="閉じる"
             >

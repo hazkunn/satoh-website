@@ -213,3 +213,65 @@ export function getProductBySlug(slug: string): Product | undefined {
 export function getItemSlugs(): string[] {
   return flatItems.map((f) => f.slug);
 }
+
+// ============================================================
+// Precomputed search index — built once at module load time
+// ============================================================
+
+export type IndexedProduct = {
+  slug: string;
+  name: string;
+  nameLower: string;
+  category: string;
+  categoryLower: string;
+  description: string;
+  descriptionLower: string;
+  models: string[];
+  modelsLower: string[];
+  specs: { label: string; value: string }[];
+  url: string;
+};
+
+type BrandEntry = { productIdx: number; brandValue: string; brandLower: string };
+
+let _searchIndex: { products: IndexedProduct[]; brands: BrandEntry[] } | null = null;
+
+export function getSearchIndex(): { products: IndexedProduct[]; brands: BrandEntry[] } {
+  if (_searchIndex) return _searchIndex;
+
+  const products: IndexedProduct[] = [];
+  const brands: BrandEntry[] = [];
+
+  for (const f of flatItems) {
+    const product = getProductBySlug(f.slug);
+    if (!product) continue;
+
+    const idx = products.length;
+    const models = product.models ?? [];
+    const specs = product.specifications ?? [];
+
+    products.push({
+      slug: product.slug,
+      name: product.name,
+      nameLower: product.name.toLowerCase(),
+      category: product.category,
+      categoryLower: product.category.toLowerCase(),
+      description: product.description,
+      descriptionLower: product.description.toLowerCase(),
+      models,
+      modelsLower: models.map((m) => m.toLowerCase()),
+      specs,
+      url: `/inventory/${product.slug}`,
+    });
+
+    // Pre-extract brand from specs
+    for (const s of specs) {
+      if (s.label.includes("メーカー")) {
+        brands.push({ productIdx: idx, brandValue: s.value, brandLower: s.value.toLowerCase() });
+      }
+    }
+  }
+
+  _searchIndex = { products, brands };
+  return _searchIndex;
+}
