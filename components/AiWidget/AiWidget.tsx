@@ -229,16 +229,35 @@ export default function AiWidget() {
       if (match.index > lastIndex) {
         parts.push(content.slice(lastIndex, match.index));
       }
+      const linkText = match[1];
+      const linkUrl = match[2];
+      const isInternal = linkUrl.startsWith("/");
+
       parts.push(
-        <a
-          key={match.index}
-          href={match[2]}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-400 hover:text-blue-300 underline"
-        >
-          {match[1]}
-        </a>
+        isInternal ? (
+          <a
+            key={match.index}
+            href={linkUrl}
+            onClick={(e) => {
+              e.preventDefault();
+              setIsPanelOpen(false);
+              router.push(linkUrl);
+            }}
+            className="text-blue-400 hover:text-blue-300 underline cursor-pointer"
+          >
+            {linkText}
+          </a>
+        ) : (
+          <a
+            key={match.index}
+            href={linkUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-400 hover:text-blue-300 underline"
+          >
+            {linkText}
+          </a>
+        )
       );
       lastIndex = match.index + match[0].length;
     }

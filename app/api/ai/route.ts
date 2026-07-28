@@ -3,7 +3,7 @@ import type { SearchResult } from "./search/route";
 
 const AI_API_URL = process.env.AI_API_URL || "";
 const AI_API_KEY = process.env.AI_API_KEY || "";
-const AI_MODEL = process.env.AI_MODEL || "google/gemma-4-31b-it";
+const AI_MODEL = process.env.AI_MODEL || "deepseek/deepseek-v4-pro-cheaper:thinking";
 
 // All pages on the website for the AI to suggest links
 const WEBSITE_PAGES = [
@@ -110,7 +110,34 @@ ${WEBSITE_PAGES.map((p) => `- ${p.title}: ${p.path}`).join("\n")}
 - 製品について質問された場合は、search_inventory() で検索して該当製品を特定し、在庫ページのリンクを提示してください
 - 製品が見つからない場合は、お問い合わせページへの案内をしてください
 - リンクを提示する場合は「こちら」という言葉を使って自然にリンクを埋め込んでください
-- お客様が会話の中で特定の製品ページに移動したいと言った場合は、リダイレクト用の特別な応答として "REDIRECT_TO:" の後にURLを続けてください（例: "REDIRECT_TO:/inventory"）
+- お客様が会話の中で特定の製品ページに移動したいと言った場合は、リダイレクト用の特別な応答として "REDIRECT_TO:" の後にURLを続けてください（例: "REDIRECT_TO:/inventory")
+
+【プロアクティブなお問い合わせ案内】
+あなたは会話の中で積極的にお問い合わせを提案する役割があります。
+
+【発動タイミング】
+- 製品が検索結果で見つかった場合：製品情報を提示した後、「この製品についてお問い合わせいたしますか？」と提案してください。
+- 製品が見つからなかった場合：お問い合わせページへの案内を提案してください。
+- お客様が見積もりや詳細情報を求めた場合：お問い合わせを提案してください。
+
+【お問い合わせに必要な情報】
+お問い合わせフォームに自動入力するために必要な情報は以下の通りです：
+- 必須：メールアドレスまたは電話番号（どちらか一方のみでOK）
+- 任意：会社名、お名前（なくてもOK）
+- AIが自動入力：お問い合わせ項目（subject）とお問い合わせ内容（message）は会話の文脈から自動的に決定します
+
+【お問い合わせの進め方】
+1. 製品が特定できたら、お客様に「この製品についてお問い合わせいたしますか？」と提案する。
+2. お客様が希望したら、「ご連絡先としてメールアドレスまたは電話番号を教えてください」と尋ねる。
+3. お客様からメールアドレスまたは電話番号のいずれか一方をいただいたら、すぐにINQUIRY_FILLリンクを生成する。両方なくてもOK。名前も不要。
+4. subject（お問い合わせ項目）は会話の文脈から自動的に選択：製品について, 在庫について, お見積もりについて, サービスについて, その他
+5. message（お問い合わせ内容）は会話の内容から適切な概要を自動生成する。
+6. 自動入力リンクの形式：
+   INQUIRY_FILL:/inquiry?company=会社名&name=お名前&email=メール&phone=電話&subject=件名&message=内容
+7. パラメータ値はURLエンコード（encodeURIComponent）してください。空のパラメータは省略可能です。
+8. リンクを応答の最後に一行で含めてください。システムが自動的にリンクを検出し、お客様をお問い合わせページに案内します。
+9. 例：お客様が「電話は03-1234-5678です」とだけ言った場合：
+   INQUIRY_FILL:/inquiry?phone=03-1234-5678&subject=%E8%A3%BD%E5%93%81%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6&message=%E8%A3%BD%E5%93%81%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6%E3%81%AE%E3%81%8A%E5%95%8F%E3%81%84%E5%90%88%E3%82%8F%E3%81%9B
 
 【ハルシネーション防止ルール】
 - 製品名・型番・仕様・価格・在庫状況など、事実に基づく情報は検索結果またはウェブサイトのページ一覧のみを根拠にしてください。根拠のない情報をでっち上げないでください。
@@ -216,13 +243,24 @@ ${WEBSITE_PAGES.map((p) => `- ${p.title}: ${p.path}`).join("\n")}
     const content = data.choices?.[0]?.message?.content || "";
     let redirectUrl: string | null = null;
 
-    const redirectMatch = content.match(/REDIRECT_TO:(\/\S*)/);
-    if (redirectMatch) {
-      redirectUrl = redirectMatch[1];
-      // Remove the redirect instruction from the response content
+    // Check for INQUIRY_FILL first (pre-filled inquiry form)
+    const inquiryMatch = content.match(/INQUIRY_FILL:(\/[^\s]*)/);
+    if (inquiryMatch) {
+      redirectUrl = inquiryMatch[1];
+      // Remove the INQUIRY_FILL instruction from the response content
       data.choices[0].message.content = content
-        .replace(/REDIRECT_TO:\/\S*/, "")
+        .replace(/INQUIRY_FILL:\/[^\s]*\s*/, "")
         .trim();
+    } else {
+      // Check for REDIRECT_TO
+      const redirectMatch = content.match(/REDIRECT_TO:(\/\S*)/);
+      if (redirectMatch) {
+        redirectUrl = redirectMatch[1];
+        // Remove the redirect instruction from the response content
+        data.choices[0].message.content = content
+          .replace(/REDIRECT_TO:\/\S*/, "")
+          .trim();
+      }
     }
 
     return NextResponse.json({
@@ -263,8 +301,46 @@ function generateSimulatedResponse(
     }
 
     return {
-      text: `「${name}」が見つかりました。詳細は[こちら](${link})をご覧ください。`,
+      text: `「${name}」が見つかりました。詳細は[こちら](${link})をご覧ください。\n\nこの製品についてお問い合わせいたしますか？ご連絡先（メールアドレスまたは電話番号）を教えていただければ、お問い合わせフォームにご案内いたします。`,
       redirectUrl: null,
+    };
+  }
+
+  // Check if the user is trying to fill an inquiry/contact form
+  const inquiryKeywords = [
+    "問い合わせ", "問合せ", "連絡", "相談", "依頼", "見積もり",
+    "inquiry", "contact", "相談したい", "問い合わせたい",
+  ];
+  if (inquiryKeywords.some((kw) => msg.includes(kw))) {
+    // Generate a pre-filled inquiry link from message context
+    const companyMatch = message.match(/(?:会社|企業|法人)[:\s]*[「『]*(\S+?)[」』]*(?:です|ます|。|$)/);
+    const nameMatch = message.match(/(?:名前|氏名)[:\s]*[「『]*(\S+?)[」』]*(?:です|ます|。|$)/);
+    const emailMatch = message.match(/(?:メール|email|mail)[:\s]*[「『]*(\S+@\S+?)[」』]*(?:です|ます|。|$)/);
+    const phoneMatch = message.match(/(?:電話|TEL|tel|携帯)[:\s]*[「『]*([\d\-]+)[」』]*(?:です|ます|。|$)/i);
+
+    // Fallback: try less structured patterns
+    const simpleNameMatch = message.match(/(\S{2,4})\s*(?:です|と申します|といいます)/);
+    const simpleEmailMatch = message.match(/(\S+@\S+\.\S+)/);
+    const simplePhoneMatch = message.match(/(\d{2,4}[\-]\d{2,4}[\-]\d{2,4})/);
+
+    const company = companyMatch ? companyMatch[1] : "";
+    const name = nameMatch ? nameMatch[1] : (simpleNameMatch ? simpleNameMatch[1] : "");
+    const emailVal = emailMatch ? emailMatch[1] : (simpleEmailMatch ? simpleEmailMatch[1] : "");
+    const phoneVal = phoneMatch ? phoneMatch[1] : (simplePhoneMatch ? simplePhoneMatch[1] : "");
+
+    // Build query string - omit empty params
+    const parts: string[] = [];
+    if (company) parts.push(`company=${encodeURIComponent(company)}`);
+    if (name) parts.push(`name=${encodeURIComponent(name)}`);
+    if (emailVal) parts.push(`email=${encodeURIComponent(emailVal)}`);
+    if (phoneVal) parts.push(`phone=${encodeURIComponent(phoneVal)}`);
+    parts.push(`subject=${encodeURIComponent("その他")}`);
+    parts.push(`message=${encodeURIComponent(message.slice(0, 200))}`);
+
+    const inquiryUrl = `/inquiry?${parts.join("&")}`;
+    return {
+      text: `お問い合わせありがとうございます。内容を確認の上、お問い合わせフォームにご案内します。`,
+      redirectUrl: inquiryUrl,
     };
   }
 

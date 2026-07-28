@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function InquiryPage() {
+  const initialFilled = useRef(false);
+
   const [formData, setFormData] = useState({
     company: "",
     name: "",
@@ -13,16 +15,59 @@ export default function InquiryPage() {
     message: "",
   });
 
+  // Read URL params on mount to auto-fill form from AI chat
+  useEffect(() => {
+    if (initialFilled.current) return;
+    const params = new URLSearchParams(window.location.search);
+    const fields = ["company", "name", "email", "phone", "subject", "message"];
+    let hasData = false;
+    const filled: Record<string, string> = {};
+
+    for (const field of fields) {
+      const value = params.get(field);
+      if (value) {
+        filled[field] = decodeURIComponent(value);
+        hasData = true;
+      }
+    }
+    if (hasData) {
+      initialFilled.current = true;
+      setFormData((prev) => ({ ...prev, ...filled }));
+    }
+  }, []);
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Clear error when user starts typing
+    if (errors[e.target.name]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[e.target.name];
+        return next;
+      });
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const errs: Record<string, string> = {};
+    if (!formData.email.trim() && !formData.phone.trim()) {
+      errs.email = "メールアドレスまたは電話番号のいずれかを入力してください";
+      errs.phone = "メールアドレスまたは電話番号のいずれかを入力してください";
+    }
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) return;
 
     const mailtoSubject = encodeURIComponent(
       `【お問い合わせ】${formData.subject}`
@@ -195,7 +240,7 @@ ${formData.message}`
                       htmlFor="name"
                       className="block text-sm font-semibold text-gray-700 mb-2"
                     >
-                      お名前 <span className="text-red-500">*</span>
+                      お名前
                     </label>
                     <input
                       type="text"
@@ -203,7 +248,6 @@ ${formData.message}`
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      required
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
                       placeholder="山田 太郎"
                     />
@@ -214,7 +258,10 @@ ${formData.message}`
                       htmlFor="email"
                       className="block text-sm font-semibold text-gray-700 mb-2"
                     >
-                      メールアドレス <span className="text-red-500">*</span>
+                      メールアドレス{" "}
+                      <span className="text-xs font-normal text-gray-400">
+                        (電話番号とどちらか必須)
+                      </span>
                     </label>
                     <input
                       type="email"
@@ -222,10 +269,16 @@ ${formData.message}`
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors ${
+                        errors.email
+                          ? "border-red-400 bg-red-50"
+                          : "border-gray-300"
+                      }`}
                       placeholder="info@example.com"
                     />
+                    {errors.email && (
+                      <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                    )}
                   </div>
 
                   <div>
@@ -233,7 +286,10 @@ ${formData.message}`
                       htmlFor="phone"
                       className="block text-sm font-semibold text-gray-700 mb-2"
                     >
-                      電話番号
+                      電話番号{" "}
+                      <span className="text-xs font-normal text-gray-400">
+                        (メールアドレスとどちらか必須)
+                      </span>
                     </label>
                     <input
                       type="tel"
@@ -241,9 +297,16 @@ ${formData.message}`
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors ${
+                        errors.phone
+                          ? "border-red-400 bg-red-50"
+                          : "border-gray-300"
+                      }`}
                       placeholder="00-0000-0000"
                     />
+                    {errors.phone && (
+                      <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
+                    )}
                   </div>
 
                   <div>
@@ -251,14 +314,13 @@ ${formData.message}`
                       htmlFor="subject"
                       className="block text-sm font-semibold text-gray-700 mb-2"
                     >
-                      お問い合わせ項目 <span className="text-red-500">*</span>
+                      お問い合わせ項目
                     </label>
                     <select
                       id="subject"
                       name="subject"
                       value={formData.subject}
                       onChange={handleChange}
-                      required
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors bg-white"
                     >
                       <option value="">選択してください</option>
@@ -279,14 +341,13 @@ ${formData.message}`
                       htmlFor="message"
                       className="block text-sm font-semibold text-gray-700 mb-2"
                     >
-                      お問い合わせ内容 <span className="text-red-500">*</span>
+                      お問い合わせ内容
                     </label>
                     <textarea
                       id="message"
                       name="message"
                       value={formData.message}
                       onChange={handleChange}
-                      required
                       rows={6}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors resize-vertical"
                       placeholder="お問い合わせ内容をご記入ください"
