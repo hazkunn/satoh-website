@@ -116,9 +116,9 @@ ${WEBSITE_PAGES.map((p) => `- ${p.title}: ${p.path}`).join("\n")}
 あなたは会話の中で積極的にお問い合わせを提案する役割があります。
 
 【発動タイミング】
-- 製品が検索結果で見つかった場合：製品情報を提示した後、「この製品についてお問い合わせいたしますか？」と提案してください。
-- 製品が見つからなかった場合：お問い合わせページへの案内を提案してください。
-- お客様が見積もりや詳細情報を求めた場合：お問い合わせを提案してください。
+- 製品が検索結果で見つかった場合：製品情報を提示した後、「ご注文やお見積もりをご希望の方は、ご連絡先（メールアドレスまたは電話番号）をお知らせください。お問い合わせフォームにご案内いたします。」と案内してください。「お問い合わせいたしますか？」のような確認の質問は一切しないでください。
+- 製品が見つからなかった場合：お問い合わせページへの案内をしてください。
+- お客様が見積もりや詳細情報を求めた場合：すぐにご連絡先（メールアドレスまたは電話番号）をお知らせいただくようお伝えし、INQUIRY_FILLリンクを生成してください。
 
 【お問い合わせに必要な情報】
 お問い合わせフォームに自動入力するために必要な情報は以下の通りです：
@@ -127,16 +127,15 @@ ${WEBSITE_PAGES.map((p) => `- ${p.title}: ${p.path}`).join("\n")}
 - AIが自動入力：お問い合わせ項目（subject）とお問い合わせ内容（message）は会話の文脈から自動的に決定します
 
 【お問い合わせの進め方】
-1. 製品が特定できたら、お客様に「この製品についてお問い合わせいたしますか？」と提案する。
-2. お客様が希望したら、「ご連絡先としてメールアドレスまたは電話番号を教えてください」と尋ねる。
-3. お客様からメールアドレスまたは電話番号のいずれか一方をいただいたら、すぐにINQUIRY_FILLリンクを生成する。両方なくてもOK。名前も不要。
-4. subject（お問い合わせ項目）は会話の文脈から自動的に選択：製品について, 在庫について, お見積もりについて, サービスについて, その他
-5. message（お問い合わせ内容）は会話の内容から適切な概要を自動生成する。
-6. 自動入力リンクの形式：
+1. 製品が特定できたら、確認の質問（「お問い合わせしますか？」など）はせず、直接「ご注文やお見積もりをご希望の方は、ご連絡先（メールアドレスまたは電話番号）をお知らせください」と案内する。
+2. お客様からメールアドレスまたは電話番号のいずれか一方をいただいたら、すぐにINQUIRY_FILLリンクを生成する。両方なくてもOK。名前も不要。
+3. subject（お問い合わせ項目）は会話の文脈から自動的に選択：製品について, 在庫について, お見積もりについて, サービスについて, その他
+4. message（お問い合わせ内容）は会話の内容から適切な概要を自動生成する。
+5. 自動入力リンクの形式：
    INQUIRY_FILL:/inquiry?company=会社名&name=お名前&email=メール&phone=電話&subject=件名&message=内容
-7. パラメータ値はURLエンコード（encodeURIComponent）してください。空のパラメータは省略可能です。
-8. リンクを応答の最後に一行で含めてください。システムが自動的にリンクを検出し、お客様をお問い合わせページに案内します。
-9. 例：お客様が「電話は03-1234-5678です」とだけ言った場合：
+6. パラメータ値はURLエンコード（encodeURIComponent）してください。空のパラメータは省略可能です。
+7. リンクを応答の最後に一行で含めてください。システムが自動的にリンクを検出し、お客様をお問い合わせページに案内します。
+8. 例：お客様が「電話は03-1234-5678です」とだけ言った場合：
    INQUIRY_FILL:/inquiry?phone=03-1234-5678&subject=%E8%A3%BD%E5%93%81%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6&message=%E8%A3%BD%E5%93%81%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6%E3%81%AE%E3%81%8A%E5%95%8F%E3%81%84%E5%90%88%E3%82%8F%E3%81%9B
 
 【ハルシネーション防止ルール】
@@ -239,8 +238,15 @@ ${WEBSITE_PAGES.map((p) => `- ${p.title}: ${p.path}`).join("\n")}
 
     const data = await apiResponse.json();
 
-    // Check if the response contains a redirect instruction
-    const content = data.choices?.[0]?.message?.content || "";
+    // Some models (e.g. reasoning/thinking models) put their answer in
+    // `reasoning_content` and leave `content` empty. Fall back to it so the
+    // user always gets a response.
+    const rawMessage = data.choices?.[0]?.message || {};
+    const content =
+      (rawMessage.content && String(rawMessage.content).trim()) ||
+      (rawMessage.reasoning_content && String(rawMessage.reasoning_content).trim()) ||
+      "";
+
     let redirectUrl: string | null = null;
 
     // Check for INQUIRY_FILL first (pre-filled inquiry form)
@@ -260,6 +266,10 @@ ${WEBSITE_PAGES.map((p) => `- ${p.title}: ${p.path}`).join("\n")}
         data.choices[0].message.content = content
           .replace(/REDIRECT_TO:\/\S*/, "")
           .trim();
+      } else if (content) {
+        // Ensure a non-empty content is surfaced even when it came from
+        // the reasoning_content fallback.
+        data.choices[0].message.content = content;
       }
     }
 
@@ -301,7 +311,7 @@ function generateSimulatedResponse(
     }
 
     return {
-      text: `「${name}」が見つかりました。詳細は[こちら](${link})をご覧ください。\n\nこの製品についてお問い合わせいたしますか？ご連絡先（メールアドレスまたは電話番号）を教えていただければ、お問い合わせフォームにご案内いたします。`,
+      text: `「${name}」が見つかりました。詳細は[こちら](${link})をご覧ください。\n\nご注文やお見積もりをご希望の方は、ご連絡先（メールアドレスまたは電話番号）をお知らせください。お問い合わせフォームにご案内いたします。`,
       redirectUrl: null,
     };
   }
