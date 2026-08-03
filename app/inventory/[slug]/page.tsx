@@ -1,6 +1,11 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getProductBySlug, getItemSlugs } from "@/lib/inventory";
+import {
+  getProductBySlug,
+  getItemSlugs,
+  getVBeltModelByCode,
+  getVBeltProductSlugs,
+} from "@/lib/inventory";
 
 export function generateStaticParams() {
   return getItemSlugs().map((slug) => ({ slug }));
@@ -96,14 +101,29 @@ export default async function ProductPage({
                 </div>
                 <div className="p-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                    {product.models.map((model) => (
-                      <div
-                        key={model}
-                        className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm font-mono text-gray-700 hover:bg-blue-50 hover:border-blue-300 transition-colors"
-                      >
-                        {model}
-                      </div>
-                    ))}
+                    {product.models.map((model) => {
+                                          const hasDetailPage = getVBeltModelByCode(model) !== undefined;
+                                          if (hasDetailPage) {
+                                            return (
+                                              <Link
+                                                key={model}
+                                                href={`/inventory/${slug}/${model}`}
+                                                className="block bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm font-mono text-gray-700 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                                              >
+                                                {model}
+                                                <span className="text-blue-600 ml-2 text-xs">→ 詳細</span>
+                                              </Link>
+                                            );
+                                          }
+                                          return (
+                                            <div
+                                              key={model}
+                                              className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm font-mono text-gray-700"
+                                            >
+                                              {model}
+                                            </div>
+                                          );
+                                        })}
                   </div>
                 </div>
               </div>

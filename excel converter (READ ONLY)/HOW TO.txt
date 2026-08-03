@@ -1,0 +1,7 @@
+this folder is for you to understand what this extractor is. 
+
+1. we have excel data that contain thousands of product information
+2. this extractor is for you to get the 商品名 data extracted from the file, since the other information is useless.
+3. after you get the 商品名, surf the internet to see the specification of the product.
+4. add/make a listing inside the product inventory. for example for tsurumi 80B43.7 : it would be inside プラント資材 category, select pump folder, choose tsurumi, choose B series, then finally choose 80B43.7 to look at the product specification
+5. you should not include the price from the internet or excel data, idiot. just specification

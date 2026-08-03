@@ -22,6 +22,7 @@ const PRODUCT_QUERY_KEYWORDS = [
   "ベアリング", "ポンプ", "バルブ", "シリンダー", "フィルター",
   "モーター", "センサー", "スイッチ", "リレー", "工具",
   "油圧", "空圧", "切削", "計測", "電気", "機構部品",
+  "ベルト", "Vベルト", "伝達",
   // English
   "bearing", "pump", "valve", "cylinder", "filter", "motor",
   "sensor", "switch", "relay", "tool", "hose", "pipe", "seal",
@@ -31,6 +32,7 @@ const PRODUCT_QUERY_KEYWORDS = [
   "ミスミ", "三菱", "オムロン", "キーエンス",
   // Brands (English)
   "mitsubishi", "omron", "keyence", "smc", "ckd", "koganei",
+  "mitsuboshi", "三ツ星", "三ツ星ベルト",
   "parker", "vickers", "yuken", "daikin", "nachi", "nsk", "ntn",
   "iko", "thk", "nsuk", "tsurumi", "ebara", "goulds", "grundfos",
   "ksb", "sulzer", "flowserve", "itt", "kirloskar", "hitachi",
@@ -40,12 +42,10 @@ const PRODUCT_QUERY_KEYWORDS = [
 // Check if the message looks like a product query
 function isProductQuery(text: string): boolean {
   const lower = text.toLowerCase();
-  // Check for model number patterns (e.g., 80B2.4, 6013, TL-200, P-100A, 3HP)
-  if (/[a-z0-9][\-.][a-z0-9]/i.test(lower)) return true; // e.g., 80B2.4, TL-200
-  if (/\d+[a-z]/i.test(lower)) return true; // e.g., 80B2, 3HP
-  if (/[a-z]+\d/i.test(lower)) return true; // e.g., TSURUMI 80B2.4
-  if (/\d{3,}/.test(lower)) return true; // e.g., 6013, 100
-  // Check for product keywords
+  if (/[a-z0-9][\-.][a-z0-9]/i.test(lower)) return true;
+  if (/\d+[a-z]/i.test(lower)) return true;
+  if (/[a-z]+\d/i.test(lower)) return true;
+  if (/\d{3,}/.test(lower)) return true;
   return PRODUCT_QUERY_KEYWORDS.some((kw) => lower.includes(kw));
 }
 
@@ -54,7 +54,6 @@ function extractSearchQueries(text: string): string[] {
   const lower = text.toLowerCase().trim();
   const queries: string[] = [lower];
 
-  // Remove common Japanese question phrases for a cleaner query
   const cleaned = text
     .replace(/[？?].*$/, "")
     .replace(/在庫は|ありますか|教えて|ください|お願い|見たい|探して/g, "")
@@ -62,35 +61,134 @@ function extractSearchQueries(text: string): string[] {
     .trim();
   if (cleaned && cleaned !== lower) queries.unshift(cleaned.toLowerCase().trim());
 
-  // Try to extract just the model number (e.g., 80B2.4 from "tsurumi pump 80B2.4")
   const modelMatch = text.match(/([a-z0-9]+[\-.][a-z0-9]+)/i);
   if (modelMatch) {
     queries.unshift(modelMatch[1].toLowerCase());
   }
 
-  // Also try alphanumeric sequences that look like model numbers (no punctuation)
   const alphaNumMatch = text.match(/(\d+[a-z]+)/i);
   if (alphaNumMatch && !modelMatch) {
     queries.unshift(alphaNumMatch[1].toLowerCase());
   }
 
-  return [...new Set(queries)]; // deduplicate
+  return [...new Set(queries)];
+}
+
+// ── Contact-info detection & inquiry URL builder ──────────────────
+// These run SERVER-SIDE so the inquiry form can be filled even when the
+// AI model doesn't emit the INQUIRY_FILL: protocol (or when the upstream
+// API is down). We scan the full conversation for an email or phone
+// number — either one is enough to pre-fill the form.
+
+type InquiryData = {
+  company: string;
+  name: string;
+  email: string;
+  phone: string;
+};
+
+type FlatMessage = { role: string; content: string };
+
+function detectInquiryData(messages: FlatMessage[]): InquiryData | null {
+  const userText = messages
+    .filter((m) => m.role === "user")
+    .map((m) => (typeof m.content === "string" ? m.content : ""))
+    .join("\n");
+
+  if (!userText.trim()) return null;
+
+  const emailMatch = userText.match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
+  const phoneMatch = userText.match(/(\d{2,4}[-\s]\d{2,4}[-\s]\d{2,4}|\d{10,11})/);
+
+  // Need at least an email OR a phone number to fill the form
+  if (!emailMatch && !phoneMatch) return null;
+
+  const companyMatch = userText.match(/(?:会社|企業|法人|会社名)[:\s]*[「『]*([^\s「『」』,，。]+)[」』]?/);
+  const nameMatch = userText.match(/(?:名前|氏名|お名前)[:\s]*[「『]*([^\s「『」』,，。]+)[」』]?/);
+  const simpleNameMatch = userText.match(/([^\s]{2,8})\s*(?:です|と申します|といいます)/);
+
+  return {
+    company: companyMatch ? companyMatch[1] : "",
+    name: nameMatch ? nameMatch[1] : simpleNameMatch ? simpleNameMatch[1] : "",
+    email: emailMatch ? emailMatch[0] : "",
+    phone: phoneMatch ? phoneMatch[1].replace(/\s/g, "-") : "",
+  };
+}
+
+function guessSubject(messages: FlatMessage[]): string {
+  const userText = messages
+    .filter((m) => m.role === "user")
+    .map((m) => (typeof m.content === "string" ? m.content : ""))
+    .join(" ")
+    .toLowerCase();
+
+  if (userText.includes("見積") || userText.includes("価格") || userText.includes("料金")) {
+    return "お見積もりについて";
+  }
+  if (userText.includes("在庫") || userText.includes("ありますか") || userText.includes("あるか")) {
+    return "在庫について";
+  }
+  if (userText.includes("サービス") || userText.includes("修理") || userText.includes("保守")) {
+    return "サービスについて";
+  }
+  if (
+    userText.includes("製品") ||
+    userText.includes("商品") ||
+    userText.includes("型番") ||
+    userText.includes("ベアリング") ||
+    userText.includes("ポンプ")
+  ) {
+    return "製品について";
+  }
+  return "その他";
+}
+
+function buildInquiryUrl(data: InquiryData, messages: FlatMessage[]): string {
+  const parts: string[] = [];
+  if (data.company) parts.push(`company=${encodeURIComponent(data.company)}`);
+  if (data.name) parts.push(`name=${encodeURIComponent(data.name)}`);
+  if (data.email) parts.push(`email=${encodeURIComponent(data.email)}`);
+  if (data.phone) parts.push(`phone=${encodeURIComponent(data.phone)}`);
+  parts.push(`subject=${encodeURIComponent(guessSubject(messages))}`);
+
+  const userText = messages
+    .filter((m) => m.role === "user")
+    .map((m) => (typeof m.content === "string" ? m.content : ""))
+    .join(" / ");
+  const messageSummary = userText.slice(0, 300);
+  parts.push(`message=${encodeURIComponent(messageSummary)}`);
+
+  return `/inquiry?${parts.join("&")}`;
 }
 
 export async function POST(request: NextRequest) {
+  const body = await request.json();
+  const { messages } = body;
+
+  if (!messages || !Array.isArray(messages)) {
+    return NextResponse.json(
+      { error: "messages array is required" },
+      { status: 400 }
+    );
+  }
+
+  const lastMessage = messages[messages.length - 1]?.content || "";
+
+  // Flatten messages to {role, content} strings for inquiry detection
+  const flatMessages: FlatMessage[] = messages.map(
+    (m: { role: string; content: unknown }) => ({
+      role: m.role,
+      content: typeof m.content === "string" ? m.content : "",
+    })
+  );
+
+  // ── Server-side inquiry detection ───────────────────────────────
+  // Scan the conversation for contact info. If found, we can auto-fill
+  // the inquiry form regardless of what the AI model does.
+  const inquiryData = detectInquiryData(flatMessages);
+  const inquiryUrl = inquiryData ? buildInquiryUrl(inquiryData, flatMessages) : null;
+
   try {
-    const body = await request.json();
-    const { messages } = body;
-
-    if (!messages || !Array.isArray(messages)) {
-      return NextResponse.json(
-        { error: "messages array is required" },
-        { status: 400 }
-      );
-    }
-
-    const lastMessage = messages[messages.length - 1]?.content || "";
-
     // Build system prompt (lean - no product dump)
     let systemPrompt = `あなたは「サトー産業」のAIアシスタントです。愛媛県松山市の産業資材・設備機器の総合商社です。
 
@@ -108,17 +206,17 @@ ${WEBSITE_PAGES.map((p) => `- ${p.title}: ${p.path}`).join("\n")}
 - 常に丁寧な日本語で答えてください
 - 事業と無関係な質問でも断らずに回答し、そのあとで自然に事業の話題へ誘導してください
 - 製品について質問された場合は、search_inventory() で検索して該当製品を特定し、在庫ページのリンクを提示してください
-- 製品が見つからない場合は、お問い合わせページへの案内をしてください
+- 製品が見つからない場合は、お客様にご連絡先（メールアドレスまたは電話番号）をお伺いしてください。ご連絡先をいただいてから、INQUIRY_FILLリンクでお問い合わせページにご案内してください。ご連絡先がない状態でお問い合わせページにリダイレクト（REDIRECT_TO:/inquiry）しないでください。
 - リンクを提示する場合は「こちら」という言葉を使って自然にリンクを埋め込んでください
-- お客様が会話の中で特定の製品ページに移動したいと言った場合は、リダイレクト用の特別な応答として "REDIRECT_TO:" の後にURLを続けてください（例: "REDIRECT_TO:/inventory")
+- お客様が会話の中で特定の製品ページに移動したいと言った場合は、リダイレクト用の特別な応答として "REDIRECT_TO:" の後にURLを続けてください（例: "REDIRECT_TO:/inventory"）
 
 【プロアクティブなお問い合わせ案内】
 あなたは会話の中で積極的にお問い合わせを提案する役割があります。
 
 【発動タイミング】
 - 製品が検索結果で見つかった場合：製品情報を提示した後、「ご注文やお見積もりをご希望の方は、ご連絡先（メールアドレスまたは電話番号）をお知らせください。お問い合わせフォームにご案内いたします。」と案内してください。「お問い合わせいたしますか？」のような確認の質問は一切しないでください。
-- 製品が見つからなかった場合：お問い合わせページへの案内をしてください。
-- お客様が見積もりや詳細情報を求めた場合：すぐにご連絡先（メールアドレスまたは電話番号）をお知らせいただくようお伝えし、INQUIRY_FILLリンクを生成してください。
+- 製品が見つからなかった場合：お客様にご連絡先（メールアドレスまたは電話番号）をお伺いしてください。ご連絡先をいただいてからINQUIRY_FILLリンクでお問い合わせページにご案内してください。ご連絡先がない状態でREDIRECT_TO:/inquiryやINQUIRY_FILLリンクを出力しないでください。
+- お客様が見積もりや詳細情報を求めた場合：すぐにご連絡先（メールアドレスまたは電話番号）をお知らせいただくようお伝えし、ご連絡先をいただいてからINQUIRY_FILLリンクを生成してください。
 
 【お問い合わせに必要な情報】
 お問い合わせフォームに自動入力するために必要な情報は以下の通りです：
@@ -162,7 +260,6 @@ ${WEBSITE_PAGES.map((p) => `- ${p.title}: ${p.path}`).join("\n")}
           const searchData = await searchRes.json();
           if (searchData.results && searchData.results.length > 0) {
             for (const r of searchData.results) {
-              // Only add if not already in results
               if (!allResults.some((existing: SearchResult) => existing.slug === r.slug)) {
                 allResults.push(r);
               }
@@ -183,16 +280,13 @@ ${WEBSITE_PAGES.map((p) => `- ${p.title}: ${p.path}`).join("\n")}
         noResultsFound = true;
       }
     } else {
-      // Not a product query — answer freely but keep anti-hallucination guardrail for business facts
       systemPrompt += `\n\nIMPORTANT GUARDRAIL: You have NOT searched the inventory for this query. Do NOT claim to have any specific product information. If the user asks about a specific product or model number, tell them you need to look it up and suggest they ask with a product name or model number. Do NOT invent model numbers, specifications, or product details. Only reference the website pages listed above. However, you may still answer general/non-business questions naturally and conversationally, then gently steer the conversation toward our business.`;
     }
 
-    // If no results found in inventory, let the AI handle it naturally instead of a canned response
     if (noResultsFound) {
-      systemPrompt += `\n\n[SEARCH RESULTS] No matching products were found in our inventory for this query.\nIMPORTANT: Do NOT invent or list any products. Tell the customer politely that the item is not currently listed on the website, and suggest they contact us via the inquiry page ([お問い合わせ](/inquiry)) so our staff can look into it. You may still answer any non-product part of the user's question naturally, then guide them toward the inquiry page.`;
+      systemPrompt += `\n\n[SEARCH RESULTS] No matching products were found in our inventory for this query.\nIMPORTANT: Do NOT invent or list any products. Tell the customer politely that the item is not currently listed on the website. Then ask the customer for their contact information (email address or phone number) so you can guide them to the inquiry form via INQUIRY_FILL. Do NOT output REDIRECT_TO:/inquiry or INQUIRY_FILL links until the customer has provided contact info. You may still answer any non-product part of the user's question naturally.`;
     }
 
-    // Append search results to system prompt for this request only
     systemPrompt += searchContext;
 
     const apiMessages = [
@@ -205,7 +299,11 @@ ${WEBSITE_PAGES.map((p) => `- ${p.title}: ${p.path}`).join("\n")}
 
     // If no custom API is configured, return a simulated response for development
     if (!AI_API_URL) {
-      const response = generateSimulatedResponse(lastMessage, searchContext);
+      const response = generateSimulatedResponse(
+        lastMessage,
+        searchContext,
+        inquiryUrl
+      );
       return NextResponse.json({
         choices: [
           {
@@ -239,8 +337,7 @@ ${WEBSITE_PAGES.map((p) => `- ${p.title}: ${p.path}`).join("\n")}
     const data = await apiResponse.json();
 
     // Some models (e.g. reasoning/thinking models) put their answer in
-    // `reasoning_content` and leave `content` empty. Fall back to it so the
-    // user always gets a response.
+    // `reasoning_content` and leave `content` empty. Fall back to it.
     const rawMessage = data.choices?.[0]?.message || {};
     const content =
       (rawMessage.content && String(rawMessage.content).trim()) ||
@@ -249,28 +346,49 @@ ${WEBSITE_PAGES.map((p) => `- ${p.title}: ${p.path}`).join("\n")}
 
     let redirectUrl: string | null = null;
 
-    // Check for INQUIRY_FILL first (pre-filled inquiry form)
+    // Check for INQUIRY_FILL first (AI model followed the protocol)
     const inquiryMatch = content.match(/INQUIRY_FILL:(\/[^\s]*)/);
     if (inquiryMatch) {
-      redirectUrl = inquiryMatch[1];
-      // Remove the INQUIRY_FILL instruction from the response content
-      data.choices[0].message.content = content
-        .replace(/INQUIRY_FILL:\/[^\s]*\s*/, "")
-        .trim();
+      // Only honor INQUIRY_FILL when we have contact info server-side.
+      // Otherwise strip it and let the chat continue so the AI can
+      // ask for the customer's contact details first.
+      if (inquiryUrl) {
+        redirectUrl = inquiryMatch[1];
+        data.choices[0].message.content = content
+          .replace(/INQUIRY_FILL:\/[^\s]*\s*/, "")
+          .trim();
+      } else {
+        data.choices[0].message.content = content
+          .replace(/INQUIRY_FILL:\/[^\s]*\s*/, "")
+          .trim();
+      }
     } else {
       // Check for REDIRECT_TO
       const redirectMatch = content.match(/REDIRECT_TO:(\/\S*)/);
       if (redirectMatch) {
-        redirectUrl = redirectMatch[1];
-        // Remove the redirect instruction from the response content
-        data.choices[0].message.content = content
-          .replace(/REDIRECT_TO:\/\S*/, "")
-          .trim();
+        const target = redirectMatch[1];
+        // Block redirects to the inquiry page when there's no contact info.
+        if (target.startsWith("/inquiry") && !inquiryUrl) {
+          redirectUrl = null;
+          data.choices[0].message.content = content
+            .replace(/REDIRECT_TO:\/\S*/, "")
+            .trim();
+        } else {
+          redirectUrl = target;
+          data.choices[0].message.content = content
+            .replace(/REDIRECT_TO:\/\S*/, "")
+            .trim();
+        }
       } else if (content) {
-        // Ensure a non-empty content is surfaced even when it came from
-        // the reasoning_content fallback.
         data.choices[0].message.content = content;
       }
+    }
+
+    // ── Fallback: if the AI didn't produce INQUIRY_FILL but we detected
+    // contact info server-side, use our own inquiry URL. This makes the
+    // form-filling work even when the model ignores the protocol.
+    if (!redirectUrl && inquiryUrl) {
+      redirectUrl = inquiryUrl;
     }
 
     return NextResponse.json({
@@ -279,17 +397,45 @@ ${WEBSITE_PAGES.map((p) => `- ${p.title}: ${p.path}`).join("\n")}
     });
   } catch (error) {
     console.error("AI API error:", error);
-    return NextResponse.json(
-      { error: "Failed to process AI request" },
-      { status: 500 }
-    );
+
+    // ── Graceful fallback: even if the AI API is down, if we detected
+    // contact info from the conversation, still redirect to the inquiry
+    // form. Otherwise return a friendly error message.
+    if (inquiryUrl) {
+      return NextResponse.json({
+        choices: [
+          {
+            message: {
+              role: "assistant",
+              content:
+                "お問い合わせありがとうございます。お問い合わせフォームにご案内いたします。",
+            },
+          },
+        ],
+        redirectUrl: inquiryUrl,
+      });
+    }
+
+    return NextResponse.json({
+      choices: [
+        {
+          message: {
+            role: "assistant",
+            content:
+              "申し訳ございません。現在AI応答サービスに接続できません。お手数ですが、しばらく経ってからもう一度お試しいただくか、直接お問い合わせページからご連絡ください。",
+          },
+        },
+      ],
+      redirectUrl: null,
+    });
   }
 }
 
 // Simulated response for development when no API is configured
 function generateSimulatedResponse(
   message: string,
-  searchContext: string
+  searchContext: string,
+  serverInquiryUrl: string | null
 ): {
   text: string;
   redirectUrl: string | null;
@@ -303,7 +449,12 @@ function generateSimulatedResponse(
     const link = urlMatch ? urlMatch[1] : "/inventory";
     const name = nameMatch ? nameMatch[1] : "製品";
 
-    if (msg.includes("案内") || msg.includes("ページ") || msg.includes("リダイレクト") || msg.includes("見せ")) {
+    if (
+      msg.includes("案内") ||
+      msg.includes("ページ") ||
+      msg.includes("リダイレクト") ||
+      msg.includes("見せ")
+    ) {
       return {
         text: `${name}のページにご案内します。`,
         redirectUrl: link,
@@ -322,41 +473,29 @@ function generateSimulatedResponse(
     "inquiry", "contact", "相談したい", "問い合わせたい",
   ];
   if (inquiryKeywords.some((kw) => msg.includes(kw))) {
-    // Generate a pre-filled inquiry link from message context
-    const companyMatch = message.match(/(?:会社|企業|法人)[:\s]*[「『]*(\S+?)[」』]*(?:です|ます|。|$)/);
-    const nameMatch = message.match(/(?:名前|氏名)[:\s]*[「『]*(\S+?)[」』]*(?:です|ます|。|$)/);
-    const emailMatch = message.match(/(?:メール|email|mail)[:\s]*[「『]*(\S+@\S+?)[」』]*(?:です|ます|。|$)/);
-    const phoneMatch = message.match(/(?:電話|TEL|tel|携帯)[:\s]*[「『]*([\d\-]+)[」』]*(?:です|ます|。|$)/i);
-
-    // Fallback: try less structured patterns
-    const simpleNameMatch = message.match(/(\S{2,4})\s*(?:です|と申します|といいます)/);
-    const simpleEmailMatch = message.match(/(\S+@\S+\.\S+)/);
-    const simplePhoneMatch = message.match(/(\d{2,4}[\-]\d{2,4}[\-]\d{2,4})/);
-
-    const company = companyMatch ? companyMatch[1] : "";
-    const name = nameMatch ? nameMatch[1] : (simpleNameMatch ? simpleNameMatch[1] : "");
-    const emailVal = emailMatch ? emailMatch[1] : (simpleEmailMatch ? simpleEmailMatch[1] : "");
-    const phoneVal = phoneMatch ? phoneMatch[1] : (simplePhoneMatch ? simplePhoneMatch[1] : "");
-
-    // Build query string - omit empty params
-    const parts: string[] = [];
-    if (company) parts.push(`company=${encodeURIComponent(company)}`);
-    if (name) parts.push(`name=${encodeURIComponent(name)}`);
-    if (emailVal) parts.push(`email=${encodeURIComponent(emailVal)}`);
-    if (phoneVal) parts.push(`phone=${encodeURIComponent(phoneVal)}`);
-    parts.push(`subject=${encodeURIComponent("その他")}`);
-    parts.push(`message=${encodeURIComponent(message.slice(0, 200))}`);
-
-    const inquiryUrl = `/inquiry?${parts.join("&")}`;
+    if (serverInquiryUrl) {
+      return {
+        text: `お問い合わせありがとうございます。内容を確認の上、お問い合わせフォームにご案内します。`,
+        redirectUrl: serverInquiryUrl,
+      };
+    }
     return {
-      text: `お問い合わせありがとうございます。内容を確認の上、お問い合わせフォームにご案内します。`,
-      redirectUrl: inquiryUrl,
+      text: `お問い合わせありがとうございます。お問い合わせフォームにご案内します。ご連絡先（メールアドレスまたは電話番号）をお知らせいただければ、フォームに自動入力いたします。`,
+      redirectUrl: null,
+    };
+  }
+
+  // Server-side contact detection (no inquiry keyword but contact info present)
+  if (serverInquiryUrl) {
+    return {
+      text: `ご連絡先を確認いたしました。お問い合わせフォームにご案内いたします。`,
+      redirectUrl: serverInquiryUrl,
     };
   }
 
   // Default response — answer naturally, then steer toward business
   return {
-    text: `${message}についてですね。お答えいたします。\n\nところで、サトー産業では油圧機器、空圧機器、切削工具など、産業資材・設備機器を幅広く取り扱っております。製品名や型番をお知らせいただければ、在庫を検索してご案内いたします。また、画像をアップロードしていただければ、製品の識別もお手伝いします。何かお探しのものはございますか？`,
+    text: `${message}についてですね。お答えいたします。\n\nところで、サトー産業では三ツ星（Mitsuboshi）Vベルトをはじめ、産業資材・設備機器を取り扱っております。製品名や型番をお知らせいただければ、在庫を検索してご案内いたします。また、画像をアップロードしていただければ、製品の識別もお手伝いします。何かお探しのものはございますか？`,
     redirectUrl: null,
   };
 }

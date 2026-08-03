@@ -8,6 +8,17 @@ const inventoryData = getAllCategories();
 
 export default function InventoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
+  const [openSubCategories, setOpenSubCategories] = useState<Set<string>>(new Set());
+  const [openProductTypes, setOpenProductTypes] = useState<Set<string>>(new Set());
+  const [openBrands, setOpenBrands] = useState<Set<string>>(new Set());
+
+  const toggle = (set: Set<string>, key: string, setter: (s: Set<string>) => void) => {
+    const next = new Set(set);
+    if (next.has(key)) next.delete(key);
+    else next.add(key);
+    setter(next);
+  };
 
   const filtered = useMemo(() => {
     if (!searchQuery.trim()) {
@@ -18,25 +29,73 @@ export default function InventoryPage() {
 
     const matched = inventoryData
       .map((cat) => {
-        const matchedItems = cat.items.filter((item) =>
-          item.name.toLowerCase().includes(q)
-        );
         const catMatch =
           cat.category.toLowerCase().includes(q) ||
           cat.description.toLowerCase().includes(q);
-        return {
-          ...cat,
-          items: matchedItems,
-          catMatch,
-        };
+
+        const matchedSubs = cat.subCategories
+          .map((sub) => {
+            const subMatch =
+              sub.subCategory.toLowerCase().includes(q) ||
+              sub.description.toLowerCase().includes(q);
+
+            const matchedPTs = sub.productTypes
+              .map((pt) => {
+                const ptMatch =
+                  pt.productType.toLowerCase().includes(q) ||
+                  pt.description.toLowerCase().includes(q);
+
+                const matchedBrands = pt.brands
+                  .map((br) => {
+                    const brandMatch =
+                      br.brand.toLowerCase().includes(q) ||
+                      br.description.toLowerCase().includes(q);
+                    const matchedSeries = br.series.filter(
+                      (item) =>
+                        item.name.toLowerCase().includes(q) ||
+                        item.series.toLowerCase().includes(q)
+                    );
+                    return { ...br, series: matchedSeries, brandMatch };
+                  })
+                  .filter((br) => br.brandMatch || br.series.length > 0)
+                  .map(({ brandMatch, ...rest }) => rest);
+
+                return { ...pt, brands: matchedBrands, ptMatch };
+              })
+              .filter((pt) => pt.ptMatch || pt.brands.length > 0)
+              .map(({ ptMatch, ...rest }) => rest);
+
+            return { ...sub, productTypes: matchedPTs, subMatch };
+          })
+          .filter((sub) => sub.subMatch || sub.productTypes.length > 0)
+          .map(({ subMatch, ...rest }) => rest);
+
+        return { ...cat, subCategories: matchedSubs, catMatch };
       })
-      .filter((cat) => cat.catMatch || cat.items.length > 0)
+      .filter((cat) => cat.catMatch || cat.subCategories.length > 0)
       .map(({ catMatch, ...rest }) => rest);
 
-    const totalResults = matched.reduce((sum, c) => sum + c.items.length, 0);
+    const totalResults = matched.reduce(
+      (sum, c) =>
+        sum +
+        c.subCategories.reduce(
+          (ss, sub) =>
+            ss +
+            sub.productTypes.reduce(
+              (ps, pt) =>
+                ps + pt.brands.reduce((bs, br) => bs + br.series.length, 0),
+              0
+            ),
+          0
+        ),
+      0
+    );
 
     return { categories: matched, totalResults, searching: true };
   }, [searchQuery]);
+
+  // When searching, auto-expand all nodes
+  const isSearching = filtered.searching;
 
   return (
     <>
@@ -87,7 +146,7 @@ export default function InventoryPage() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="商品名・カテゴリを検索（例: ポンプ、センサー、ベアリング）"
+                  placeholder="商品名・カテゴリ・メーカーで検索（例: 三ツ星、Vベルト、A形）"
                   className="w-full pl-12 pr-10 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-lg"
                 />
                 {searchQuery && (
@@ -116,7 +175,7 @@ export default function InventoryPage() {
           </div>
 
           {/* Search Results Info */}
-          {filtered.searching && (
+          {isSearching && (
             <div className="text-center mb-8">
               <p className="text-gray-600">
                 「
@@ -134,57 +193,254 @@ export default function InventoryPage() {
             </div>
           )}
 
-          {/* Inventory Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filtered.categories.map((category) => (
-              <div
-                key={category.category}
-                className="bg-white rounded-xl shadow-md overflow-hidden"
-              >
-                <div className="bg-blue-700 px-6 py-4">
-                  <h2 className="text-lg font-bold text-white">
-                    {category.category}
-                  </h2>
-                  <p className="text-blue-200 text-sm mt-1">
-                    {category.description}
-                  </p>
+          {/* Inventory — Collapsible Category → Sub → ProductType → Brand → Series */}
+          <div className="space-y-3">
+            {filtered.categories.map((cat) => {
+              const catKey = cat.category;
+              const catOpen = isSearching || openCategories.has(catKey);
+              const hasContent = cat.subCategories.length > 0;
+
+              return (
+                <div
+                  key={catKey}
+                  className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200"
+                >
+                  {/* Category Header (clickable) */}
+                  <button
+                    onClick={() =>
+                      hasContent &&
+                      toggle(openCategories, catKey, setOpenCategories)
+                    }
+                    className={`w-full flex items-center justify-between px-6 py-4 ${
+                      hasContent ? "hover:bg-gray-50 cursor-pointer" : "cursor-default"
+                    } transition-colors`}
+                  >
+                    <div className="text-left">
+                      <h2 className="text-xl font-bold text-blue-900">
+                        {cat.category}
+                      </h2>
+                      <p className="text-gray-500 text-sm mt-0.5">
+                        {cat.description}
+                      </p>
+                    </div>
+                    {hasContent && (
+                      <svg
+                        className={`w-5 h-5 text-gray-400 transition-transform ${
+                          catOpen ? "rotate-180" : ""
+                        }`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    )}
+                  </button>
+
+                  {/* SubCategories */}
+                  {catOpen && hasContent && (
+                    <div className="border-t border-gray-200">
+                      {cat.subCategories.map((sub) => {
+                        const subKey = `${catKey} > ${sub.subCategory}`;
+                        const subOpen = isSearching || openSubCategories.has(subKey);
+                        const hasPTs = sub.productTypes.length > 0;
+
+                        return (
+                          <div key={subKey} className="border-b border-gray-100 last:border-b-0">
+                            <button
+                              onClick={() =>
+                                hasPTs &&
+                                toggle(openSubCategories, subKey, setOpenSubCategories)
+                              }
+                              className={`w-full flex items-center justify-between px-6 py-3 pl-10 ${
+                                hasPTs ? "hover:bg-gray-50 cursor-pointer" : "cursor-default"
+                              } transition-colors`}
+                            >
+                              <div className="text-left">
+                                <h3 className="text-base font-semibold text-gray-800">
+                                  {sub.subCategory}
+                                </h3>
+                                <p className="text-gray-400 text-xs mt-0.5">
+                                  {sub.description}
+                                </p>
+                              </div>
+                              {hasPTs && (
+                                <svg
+                                  className={`w-4 h-4 text-gray-400 transition-transform ${
+                                    subOpen ? "rotate-180" : ""
+                                  }`}
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M19 9l-7 7-7-7"
+                                  />
+                                </svg>
+                              )}
+                            </button>
+
+                            {/* ProductTypes */}
+                            {subOpen && hasPTs && (
+                              <div>
+                                {sub.productTypes.map((pt) => {
+                                  const ptKey = `${subKey} > ${pt.productType}`;
+                                  const ptOpen = isSearching || openProductTypes.has(ptKey);
+                                  const hasBrands = pt.brands.length > 0;
+
+                                  return (
+                                    <div key={ptKey} className="border-t border-gray-50">
+                                      <button
+                                        onClick={() =>
+                                          hasBrands &&
+                                          toggle(openProductTypes, ptKey, setOpenProductTypes)
+                                        }
+                                        className={`w-full flex items-center justify-between px-6 py-2.5 pl-16 ${
+                                          hasBrands ? "hover:bg-gray-50 cursor-pointer" : "cursor-default"
+                                        } transition-colors`}
+                                      >
+                                        <div className="text-left">
+                                          <span className="text-sm font-medium text-gray-700">
+                                            {pt.productType}
+                                          </span>
+                                          <span className="text-gray-400 text-xs ml-3">
+                                            {pt.description}
+                                          </span>
+                                        </div>
+                                        {hasBrands && (
+                                          <svg
+                                            className={`w-4 h-4 text-gray-400 transition-transform ${
+                                              ptOpen ? "rotate-180" : ""
+                                            }`}
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                          >
+                                            <path
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                              strokeWidth={2}
+                                              d="M19 9l-7 7-7-7"
+                                            />
+                                          </svg>
+                                        )}
+                                      </button>
+
+                                      {/* Brands */}
+                                      {ptOpen && hasBrands && (
+                                        <div>
+                                          {pt.brands.map((br) => {
+                                            const brKey = `${ptKey} > ${br.brand}`;
+                                            const brOpen = isSearching || openBrands.has(brKey);
+                                            const hasSeries = br.series.length > 0;
+
+                                            return (
+                                              <div key={brKey} className="border-t border-gray-50">
+                                                <button
+                                                  onClick={() =>
+                                                    hasSeries &&
+                                                    toggle(openBrands, brKey, setOpenBrands)
+                                                  }
+                                                  className={`w-full flex items-center justify-between px-6 py-2 pl-24 ${
+                                                    hasSeries ? "hover:bg-gray-50 cursor-pointer" : "cursor-default"
+                                                  } transition-colors`}
+                                                >
+                                                  <div className="text-left">
+                                                    <span className="text-sm font-medium text-gray-600">
+                                                      {br.brand}
+                                                    </span>
+                                                    <span className="text-gray-400 text-xs ml-3">
+                                                      {br.description}
+                                                    </span>
+                                                  </div>
+                                                  {hasSeries && (
+                                                    <svg
+                                                      className={`w-4 h-4 text-gray-400 transition-transform ${
+                                                        brOpen ? "rotate-180" : ""
+                                                      }`}
+                                                      fill="none"
+                                                      viewBox="0 0 24 24"
+                                                      stroke="currentColor"
+                                                    >
+                                                      <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M19 9l-7 7-7-7"
+                                                      />
+                                                    </svg>
+                                                  )}
+                                                </button>
+
+                                                {/* Series (leaf items) */}
+                                                {brOpen && hasSeries && (
+                                                  <div className="px-6 pl-32 py-2">
+                                                    <ul className="space-y-1.5">
+                                                      {br.series.map((item) => {
+                                                        const isHighlighted =
+                                                          isSearching &&
+                                                          (item.name
+                                                            .toLowerCase()
+                                                            .includes(searchQuery.trim().toLowerCase()) ||
+                                                            item.series
+                                                              .toLowerCase()
+                                                              .includes(searchQuery.trim().toLowerCase()));
+                                                        return (
+                                                          <li key={item.slug}>
+                                                            <Link
+                                                              href={`/inventory/${item.slug}`}
+                                                              className={`text-sm flex items-start group ${
+                                                                isHighlighted
+                                                                  ? "bg-yellow-50 -mx-2 px-2 py-1 rounded-lg"
+                                                                  : "py-1"
+                                                              }`}
+                                                            >
+                                                              <span className="text-blue-500 mr-2 group-hover:text-blue-700">
+                                                                ・
+                                                              </span>
+                                                              <span className="group-hover:text-blue-700 group-hover:font-medium transition-colors">
+                                                                {item.name}
+                                                                <span className="text-gray-400 text-xs ml-2">
+                                                                  ({item.series})
+                                                                </span>
+                                                              </span>
+                                                            </Link>
+                                                          </li>
+                                                        );
+                                                      })}
+                                                    </ul>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
-                <div className="p-6">
-                  <ul className="space-y-3">
-                    {category.items.map((item) => {
-                      const isHighlighted =
-                        filtered.searching &&
-                        item.name
-                          .toLowerCase()
-                          .includes(searchQuery.trim().toLowerCase());
-                      return (
-                        <li key={item.slug}>
-                          <Link
-                            href={`/inventory/${item.slug}`}
-                            className={`text-gray-700 text-sm flex items-start group ${
-                              isHighlighted
-                                ? "bg-yellow-50 -mx-3 px-3 py-1 rounded-lg"
-                                : "py-1"
-                            }`}
-                          >
-                            <span className="text-blue-500 mr-2 group-hover:text-blue-700">
-                              ・
-                            </span>
-                            <span className="group-hover:text-blue-700 group-hover:font-medium transition-colors">
-                              {item.name}
-                            </span>
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* No Results */}
-          {filtered.searching && filtered.totalResults === 0 && (
+          {isSearching && filtered.totalResults === 0 && (
             <div className="mt-8 bg-gray-50 rounded-xl p-12 text-center">
               <svg
                 className="w-16 h-16 mx-auto mb-4 text-gray-300"

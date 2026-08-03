@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSearchIndex } from "@/lib/inventory";
+import { getSearchIndexAsync } from "@/lib/inventory";
 
 export type SearchResult = {
   name: string;
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Use precomputed index (single pass, O(n) per search)
-    const { products, brands } = getSearchIndex();
+    const { products, brands } = await getSearchIndexAsync();
     const results: SearchResult[] = [];
     const seen = new Set<string>();
 
@@ -60,6 +60,34 @@ export async function POST(request: NextRequest) {
           url: p.url,
           matchType: "category",
           snippet: `カテゴリ: ${p.category}`,
+        });
+        continue;
+      }
+
+      // 2b. Match maker (bidirectional)
+      if (p.makerLower.includes(q) || q.includes(p.makerLower)) {
+        seen.add(p.slug);
+        results.push({
+          name: p.name,
+          slug: p.slug,
+          category: p.category,
+          url: p.url,
+          matchType: "brand",
+          snippet: `メーカー: ${p.maker}`,
+        });
+        continue;
+      }
+
+      // 2c. Match series (bidirectional)
+      if (p.seriesLower.includes(q) || q.includes(p.seriesLower)) {
+        seen.add(p.slug);
+        results.push({
+          name: p.name,
+          slug: p.slug,
+          category: p.category,
+          url: p.url,
+          matchType: "name",
+          snippet: `シリーズ: ${p.series}`,
         });
         continue;
       }
