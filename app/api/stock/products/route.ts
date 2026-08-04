@@ -1,61 +1,61 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkAuth, SESSION_COOKIE } from "@/lib/auth";
 import { readStockJson } from "@/lib/r2Json";
-import { getProductBySlug, getItemSlugs } from "@/lib/inventory";
+import { getProductBySlug, getItemSlugs, getModelCodesForSlug } from "@/lib/inventory";
 
 export async function GET(request: NextRequest) {
-  const cookie = request.cookies.get(SESSION_COOKIE)?.value;
-  const operator = await checkAuth(cookie);
-
-  if (!operator) {
-    return NextResponse.json(
-      { error: "認証が必要です" },
-      { status: 401 }
-    );
-  }
-
   try {
     const data = await readStockJson();
     const slug = request.nextUrl.searchParams.get("slug");
 
     if (slug) {
-      // Join static catalog data with R2 stock
       const staticProduct = getProductBySlug(slug);
-      const stockItem = data.items.find((i) => i.slug === slug);
-      const stock = stockItem?.stock ?? 0;
+      const modelCodes = staticProduct?.models ?? getModelCodesForSlug(slug) ?? [];
 
-      if (!staticProduct && !stockItem) {
+      const models = modelCodes.map((code) => {
+        const stockItem = data.items.find(
+          (i) => i.slug === slug && i.model === code
+        );
+        return { code, stock: stockItem?.stock ?? 0 };
+      });
+
+      if (!staticProduct && models.length === 0) {
         return NextResponse.json(
           { error: "商品が見つかりません" },
           { status: 404 }
         );
       }
 
-      const product = {
-        slug,
-        name: staticProduct?.name ?? slug,
-        models: staticProduct?.models ?? [],
-        stock,
-      };
-
-      return NextResponse.json({ product });
+      return NextResponse.json({
+        product: {
+          slug,
+          name: staticProduct?.name ?? slug,
+          models,
+        },
+      });
     }
 
-    // Return all products — static slugs merged with R2 stock
     const staticSlugs = getItemSlugs();
     const allSlugs = [...staticSlugs];
     for (const item of data.items) {
       if (!allSlugs.includes(item.slug)) allSlugs.push(item.slug);
     }
 
-    const products = allSlugs.map((slug) => {
-      const staticProduct = getProductBySlug(slug);
-      const stock = data.items.find((i) => i.slug === slug)?.stock ?? 0;
+    const products = allSlugs.map((s) => {
+      const staticProduct = getProductBySlug(s);
+      const modelCodes = staticProduct?.models ?? getModelCodesForSlug(s) ?? [];
+      const models = modelCodes.map((code) => {
+        const stockItem = data.items.find(
+          (i) => i.slug === s && i.model === code
+        );
+        return { code, stock: stockItem?.stock ?? 0 };
+      });
+      const totalStock = models.reduce((sum, m) => sum + m.stock, 0);
       return {
-        slug,
-        name: staticProduct?.name ?? slug,
-        stock,
-        models: staticProduct?.models ?? [],
+        slug: s,
+        name: staticProduct?.name ?? s,
+        totalStock,
+        modelCount: models.length,
+        models,
       };
     });
 

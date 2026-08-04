@@ -2,22 +2,26 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
   getProductBySlug,
-  getVBeltModelByCode,
-  getVBeltModelSpecs,
-  getVBeltProductSlugs,
-  getVBeltModelCodesForSlug,
+  getModelByCode,
+  getModelSpecs,
+  getProductSlugsWithModels,
+  getModelCodesForSlug,
 } from "@/lib/inventory";
+import { getStockBySlugAndModel } from "@/lib/loadInventory";
 
 export function generateStaticParams() {
-  // Generate params for all belt models across all belt product slugs
+  // Generate params for all models (belts + grease nipples) across all product slugs
   const params: { slug: string; model: string }[] = [];
-  for (const slug of getVBeltProductSlugs()) {
-    for (const code of getVBeltModelCodesForSlug(slug)) {
+  for (const slug of getProductSlugsWithModels()) {
+    for (const code of getModelCodesForSlug(slug)) {
       params.push({ slug, model: code });
     }
   }
   return params;
 }
+
+// Revalidate periodically so stock numbers refresh from R2.
+export const revalidate = 300;
 
 export default async function ModelPage({
   params,
@@ -31,12 +35,25 @@ export default async function ModelPage({
     notFound();
   }
 
-  const modelData = getVBeltModelByCode(model);
-  const specs = getVBeltModelSpecs(model);
+  const modelData = getModelByCode(model);
+  const specs = getModelSpecs(model);
 
   if (!modelData || !specs) {
     notFound();
   }
+
+  // Load stock for this specific model from R2 (cached).
+  // May be undefined if R2 is unavailable or no entry exists.
+  const stock = await getStockBySlugAndModel(slug, model);
+  const hasStockData = stock !== undefined;
+  const inStock = hasStockData && stock > 0;
+
+  // Build description based on model type
+  const description = "outerLengthInch" in modelData
+    ? `三ツ星（Mitsuboshi）スタンダードVベルト ${modelData.code} の仕様詳細ページです。外周長さ ${modelData.outerLengthInch} インチ（${modelData.outerLengthMm} mm）、${modelData.type}形のVベルトです。JIS K6323 規格適合品。`
+    : "seriesSlug" in modelData
+    ? `フローバル（Floral）グリスニップル ${modelData.code} の仕様詳細ページです。材質：${modelData.material}、形状：${modelData.shape}、ねじ規格：${modelData.thread}。各種産業機械・自動車・建設機械の潤滑部に最適です。`
+    : `三ツ星（Mitsuboshi）狭角Vベルト ${modelData.code} の仕様詳細ページです。外周長さ ${modelData.outerLengthMm} mm、${modelData.type}形の狭角Vベルトです。RMAIP規格準拠品。`;
 
   return (
     <>
@@ -81,10 +98,33 @@ export default async function ModelPage({
                 {product.name}
               </p>
               <p className="text-base text-gray-600 leading-relaxed">
-                {"outerLengthInch" in modelData
-                  ? `三ツ星（Mitsuboshi）スタンダードVベルト ${modelData.code} の仕様詳細ページです。外周長さ ${modelData.outerLengthInch} インチ（${modelData.outerLengthMm} mm）、${modelData.type}形のVベルトです。JIS K6323 規格適合品。`
-                  : `三ツ星（Mitsuboshi）狭角Vベルト ${modelData.code} の仕様詳細ページです。外周長さ ${modelData.outerLengthMm} mm、${modelData.type}形の狭角Vベルトです。RMAIP規格準拠品。`}
+                {description}
               </p>
+
+              {/* Stock badge */}
+              <div className="mt-4">
+                {hasStockData ? (
+                  <span
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ${
+                      inStock
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    <span
+                      className={`w-2.5 h-2.5 rounded-full ${
+                        inStock ? "bg-green-500" : "bg-red-500"
+                      }`}
+                    />
+                    {inStock ? `在庫 ${stock} 点` : "在庫切れ"}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-gray-100 text-gray-600">
+                    <span className="w-2.5 h-2.5 rounded-full bg-gray-400" />
+                    在庫情報はお問い合わせください
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Specifications */}

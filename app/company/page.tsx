@@ -37,12 +37,12 @@ export default function CompanyPage() {
                 <tbody>
                   {[
                     { label: "商号", value: "サトー産業" },
-                    { label: "英語表記", value: "SATO SANGYO CO., LTD." },
+                    { label: "英語表記", value: "SATOH INDUSTRIES CO., LTD." },
                     {
                       label: "所在地",
                       value: "〒799-0404\n愛媛県四国中央市三島宮川1丁目10-19",
                     },
-                    { label: "代表者", value: "代表取締役 佐藤 ○○" },
+                    { label: "代表者", value: "代表取締役 佐藤 慎介" },
                     {
                       label: "設立",
                       value: "19○○年○月○日",

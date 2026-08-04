@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
-import { checkAuth, SESSION_COOKIE } from "@/lib/auth";
 import { readStockJson, writeStockJson, type StockData } from "@/lib/r2Json";
 
 export type MovementType = "add" | "sold";
 
 export type MovementRequest = {
   slug: string;
+  model: string;
   type: MovementType;
   quantity: number;
   operatorName: string;
@@ -15,6 +15,7 @@ export type MovementRequest = {
 export type MovementLog = {
   timestamp: string;
   slug: string;
+  model: string;
   type: MovementType;
   quantity: number;
   operator: string;
@@ -22,26 +23,13 @@ export type MovementLog = {
   afterStock: number;
 };
 
-// In-memory log (resets on serverless cold start; for production use R2 or a DB)
 const movementLogs: MovementLog[] = [];
 
 export async function POST(request: NextRequest) {
   try {
-    // Auth check
-    const cookie = request.cookies.get(SESSION_COOKIE)?.value;
-    const operator = await checkAuth(cookie);
-
-    if (!operator) {
-      return NextResponse.json(
-        { error: "認証が必要です。ログインしてください。" },
-        { status: 401 }
-      );
-    }
-
     const body = (await request.json()) as MovementRequest;
-    const { slug, type, quantity } = body;
+    const { slug, model, type, quantity } = body;
 
-    // Validation
     if (!slug || !type || !quantity) {
       return NextResponse.json(
         { error: "slug, type, quantity は必須です" },
@@ -63,16 +51,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Read current stock data from R2
     let data: StockData;
     try {
       data = await readStockJson();
     } catch {
-      // If no stock file exists yet, start with an empty one
-      data = { version: 1, updatedAt: "", items: [] };
+      data = { version: 2, updatedAt: "", items: [] };
     }
 
-    const item = data.items.find((i) => i.slug === slug);
+    const item = data.items.find(
+      (i) => i.slug === slug && i.model === (model ?? "")
+    );
     const beforeStock = item?.stock ?? 0;
 
     let afterStock = beforeStock;
@@ -85,35 +73,33 @@ export async function POST(request: NextRequest) {
     if (item) {
       item.stock = afterStock;
     } else {
-      data.items.push({ slug, stock: afterStock });
+      data.items.push({ slug, model: model ?? "", stock: afterStock });
     }
     data.updatedAt = new Date().toISOString();
 
-    // Write back to R2
     await writeStockJson(data);
 
-    // Log the movement
     const log: MovementLog = {
       timestamp: new Date().toISOString(),
       slug,
+      model: model ?? "",
       type,
       quantity,
-      operator,
+      operator: "user",
       beforeStock,
       afterStock,
     };
     movementLogs.push(log);
-    // Keep only last 500 logs in memory
     if (movementLogs.length > 500) {
       movementLogs.splice(0, movementLogs.length - 500);
     }
 
-    // Revalidate cache so the website updates immediately
-    revalidateTag("inventory", { expire: 0 });
+    revalidateTag("inventory", "max");
 
     return NextResponse.json({
       success: true,
       slug,
+      model: model ?? "",
       beforeStock,
       afterStock,
       movement: log,
@@ -129,4 +115,4 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   return NextResponse.json({ logs: movementLogs.slice(-50).reverse() });
-}
+  }

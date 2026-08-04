@@ -42,3 +42,6 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# local stock data (dev only — R2 in production)
+/data

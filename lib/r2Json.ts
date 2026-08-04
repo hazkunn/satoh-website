@@ -34,11 +34,16 @@ export const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME || "satoh-website";
  * lives in the codebase (`lib/inventory.ts`) because it is curated per
  * product-type and rarely changes. Specs for a pump ≠ specs for a bearing,
  * so they must not be forced into a single generic R2 schema.
+ *
+ * Stock is stored PER-MODE (slug + model code) so that e.g.
+ * "mitsuboshi-v-belt-a" / "A19" has its own stock count.
+ * This shape MUST stay in sync with lib/localStock.ts.
  */
 export const STOCK_KEY = "inventory/stock.json";
 
 export type StockItem = {
   slug: string;
+  model: string;
   stock: number;
 };
 
@@ -56,7 +61,17 @@ export async function readStockJson(): Promise<StockData> {
   });
   const response = await client.send(command);
   const body = await response.Body!.transformToString("utf-8");
-  return JSON.parse(body) as StockData;
+  const parsed = JSON.parse(body) as StockData;
+  // Normalize v1 (slug-only) → v2 by defaulting missing model to ""
+  if (parsed.version < 2 || !parsed.items.every((i) => "model" in i)) {
+    parsed.version = 2;
+    parsed.items = parsed.items.map((i) => ({
+      slug: i.slug,
+      model: (i as { model?: string }).model ?? "",
+      stock: i.stock,
+    }));
+  }
+  return parsed;
 }
 
 export async function writeStockJson(data: StockData): Promise<void> {

@@ -6,8 +6,9 @@
  * lives in the codebase (`lib/inventory.ts`).
  *
  * Expected file format (Excel .xlsx or .csv):
- *   Columns: slug | stock
+ *   Columns: slug | model | stock
  *   - slug:  product slug (must match a slug from lib/inventory.ts)
+ *   - model: model code (e.g. "A19"); optional, defaults to ""
  *   - stock: integer
  *
  * Usage:
@@ -25,6 +26,7 @@ import { getItemSlugs } from "../lib/inventory";
 // ── Excel reading ────────────────────────────────────────────────
 type RawRow = {
   slug: string;
+  model: string;
   stock: string;
 };
 
@@ -51,6 +53,7 @@ async function readExcel(filePath: string): Promise<RawRow[]> {
     if (!obj.slug) continue;
     rows.push({
       slug: obj.slug,
+      model: obj.model || "",
       stock: obj.stock || "0",
     });
   }
@@ -69,6 +72,7 @@ function readCsv(filePath: string): RawRow[] {
     .filter((r) => r.slug)
     .map((r) => ({
       slug: r.slug,
+      model: r.model || "",
       stock: r.stock || "0",
     }));
 }
@@ -80,8 +84,9 @@ function buildStockItems(rows: RawRow[]): StockItem[] {
   const seen = new Set<string>();
 
   for (const row of rows) {
-    if (seen.has(row.slug)) continue;
-    seen.add(row.slug);
+    const key = `${row.slug}|${row.model}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
 
     if (!knownSlugs.has(row.slug)) {
       console.warn(`⚠️  Slug "${row.slug}" not found in static catalog — skipping.`);
@@ -90,6 +95,7 @@ function buildStockItems(rows: RawRow[]): StockItem[] {
 
     items.push({
       slug: row.slug,
+      model: row.model,
       stock: parseInt(row.stock, 10) || 0,
     });
   }
@@ -139,7 +145,7 @@ async function main() {
   console.log(`Built ${items.length} stock items.`);
 
   const data: StockData = {
-    version: 1,
+    version: 2,
     updatedAt: new Date().toISOString(),
     items,
   };

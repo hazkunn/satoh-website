@@ -1,464 +1,513 @@
 [
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-250",
-    "maker": "三ﾂ星",
-    "productCode": "3V250",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ A 型 M6XP0.75",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNIAM60.75",
+    "spec": "33100106 NGA-6075S",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-265",
-    "maker": "三ﾂ星",
-    "productCode": "3V265",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ A 型 M6XP1.0",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNIAM61.0",
+    "spec": "33100105 NGA-610S",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-280",
-    "maker": "三ﾂ星",
-    "productCode": "3V280",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ A 型 UNF1/4X28",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNIAU1/428",
+    "spec": "33100108 NGA-0228S",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-300",
-    "maker": "三ﾂ星",
-    "productCode": "3V300",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ A 型 PT1/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNIA1/8",
+    "spec": "33100101 NGA-01S 全長19.8L",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-315",
-    "maker": "三ﾂ星",
-    "productCode": "3V315",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ A 型 PT1/4",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNIA1/4",
+    "spec": "33100102 NGA-02S",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-335",
-    "maker": "三ﾂ星",
-    "productCode": "3V335",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ A 型 PT3/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNIA3/8",
+    "spec": "33100103 NGA-03S",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-355",
-    "maker": "三ﾂ星",
-    "productCode": "3V355",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ B 型 M6XP0.75",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNIBM60.75",
+    "spec": "33100206 NGB-6075S",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-375",
-    "maker": "三ﾂ星",
-    "productCode": "3V375",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ B 型 M6XP1.0",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNIBM61.0",
+    "spec": "33100205 NGB-610S",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-400",
-    "maker": "三ﾂ星",
-    "productCode": "3V400",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ B 型 UNF1/4X28",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNIBU1/428",
+    "spec": "33100208 NGB-0228S",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-425",
-    "maker": "三ﾂ星",
-    "productCode": "3V425",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ B 型 PT1/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNIB1/8",
+    "spec": "33100201 NGB-01S 全長21L",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-450",
-    "maker": "三ﾂ星",
-    "productCode": "3V450",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ B 型 PT1/4",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNIB1/4",
+    "spec": "33100202 NGB-02S",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-475",
-    "maker": "三ﾂ星",
-    "productCode": "3V475",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ B 型 PT3/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNIB3/8",
+    "spec": "33100203 NGB-03S",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-500",
-    "maker": "三ﾂ星",
-    "productCode": "3V500",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ C 型 M6XP0.75",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNICM60.75",
+    "spec": "33100306 NGC-6075S",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-530",
-    "maker": "三ﾂ星",
-    "productCode": "3V530",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ C 型 M6XP1.0",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNICM61.0",
+    "spec": "33100305 NGC-610S",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-560",
-    "maker": "三ﾂ星",
-    "productCode": "3V560",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ C 型 UNF1/4X28",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNICU1/428",
+    "spec": "33100308 NGC-0228S",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-600",
-    "maker": "三ﾂ星",
-    "productCode": "3V600",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ C 型 PT1/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNIC1/8",
+    "spec": "33100301 NGC-01S 全長21L",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-630",
-    "maker": "三ﾂ星",
-    "productCode": "3V630",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ C 型 PT1/4",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNIC1/4",
+    "spec": "33100302 NGC-02S",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-670",
-    "maker": "三ﾂ星",
-    "productCode": "3V670",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ C 型 PT3/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNIC3/8",
+    "spec": "33100303 NGC-03S",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-710",
-    "maker": "三ﾂ星",
-    "productCode": "3V710",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ ﾋﾟﾝﾀｲﾌﾟ PT1/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNIP1/8",
+    "spec": "33100501 NPY-01S",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-750",
-    "maker": "三ﾂ星",
-    "productCode": "3V750",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ ﾋﾟﾝﾀｲﾌﾟ PT1/4",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNIP1/4",
+    "spec": "33100502 NPY-02S",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-800",
-    "maker": "三ﾂ星",
-    "productCode": "3V800",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ ﾋﾟﾝﾀｲﾌﾟ PT3/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNIBTN3/8",
+    "spec": "33100503 NPY-03S",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-850",
-    "maker": "三ﾂ星",
-    "productCode": "3V850",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ ﾎﾞﾀﾝﾍｯﾄﾞ PT1/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNIBTN1/8",
+    "spec": "33100401 NBH-01S",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-900",
-    "maker": "三ﾂ星",
-    "productCode": "3V900",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ ﾎﾞﾀﾝﾍｯﾄﾞ PT1/4",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNIBTN1/4",
+    "spec": "33100402 NBH-02S",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-950",
-    "maker": "三ﾂ星",
-    "productCode": "3V950",
-    "spec": "",
-    "unit": "本"
+    "name": "ｽﾃﾝﾚｽ(SUS303) ｸﾞﾘｽﾆｯﾌﾟﾙ ﾎﾞﾀﾝﾍｯﾄﾞ PT3/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "SGNIBTN3/8",
+    "spec": "33100403 NBH-03S",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-1000",
-    "maker": "三ﾂ星",
-    "productCode": "3V1000",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ A 型 M6XP0.75",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNIAM60.75",
+    "spec": "33201008 NGA-6075Y",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-1060",
-    "maker": "三ﾂ星",
-    "productCode": "3V1060",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ A 型 M6XP1.0",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNIAM61.0",
+    "spec": "33201007 NGA-610Y",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-1120",
-    "maker": "三ﾂ星",
-    "productCode": "3V1120",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ A 型 UNF1/4X28",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNIAU1/428",
+    "spec": "33201010 NGA-0228Y",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-1180",
-    "maker": "三ﾂ星",
-    "productCode": "3V1180",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ A 型 PT1/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNIA1/8",
+    "spec": "33201001 NGA-01Y 全長20L",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-1250",
-    "maker": "三ﾂ星",
-    "productCode": "3V1250",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ A 型 PF1/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNIAPF18",
+    "spec": "33201002 NGA-11Y 全長14.3L",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-1320",
-    "maker": "三ﾂ星",
-    "productCode": "3V1320",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ A 型 PT1/4",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNIA1/4",
+    "spec": "33201003 NGA-02Y",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     3V-1400",
-    "maker": "三ﾂ星",
-    "productCode": "3V1400",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ A 型 PT3/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNIA3/8",
+    "spec": "33201005 NGA-03Y",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-500",
-    "maker": "三ﾂ星",
-    "productCode": "5V500",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ A 型 PT1/2",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNIA1/2",
+    "spec": "33201006 NGA-04Y",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-530",
-    "maker": "三ﾂ星",
-    "productCode": "5V530",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ B 型 M6XP0.75",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNIBM60.75",
+    "spec": "33201106 NGB-6075Y",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-560",
-    "maker": "三ﾂ星",
-    "productCode": "5V560",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ B 型 M6XP1.0",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNIBM61.0",
+    "spec": "33201105 NGB-610Y",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-600",
-    "maker": "三ﾂ星",
-    "productCode": "5V600",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ B 型 UNF1/4X28",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNIBU1/428",
+    "spec": "33201108 NGB-0228Y",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-630",
-    "maker": "三ﾂ星",
-    "productCode": "5V630",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ B 型 PT1/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNIB1/8",
+    "spec": "33201101 NGB-01Y 全長21L",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-670",
-    "maker": "三ﾂ星",
-    "productCode": "5V670",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ B 型 PT1/4",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNIB1/4",
+    "spec": "33201002 NGB-02Y",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-710",
-    "maker": "三ﾂ星",
-    "productCode": "5V710",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ B 型 PT3/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNIB3/8",
+    "spec": "33201103 NGB-03Y",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-750",
-    "maker": "三ﾂ星",
-    "productCode": "5V750",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ C 型 M6XP0.75",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNICM60.75",
+    "spec": "33201206 NGC-6075Y",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-800",
-    "maker": "三ﾂ星",
-    "productCode": "5V800",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ C 型 M6XP1.0",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNICM61.0",
+    "spec": "33201205 NGC-610Y",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-850",
-    "maker": "三ﾂ星",
-    "productCode": "5V850",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ C 型 UNF1/4X28",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNICU1/428",
+    "spec": "33201208 NGC-0228Y",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-900",
-    "maker": "三ﾂ星",
-    "productCode": "5V900",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ C 型 PT1/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNIC1/8",
+    "spec": "33201201 NGC-01Y 全長21L",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-950",
-    "maker": "三ﾂ星",
-    "productCode": "5V950",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ C 型 PT1/4",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNIC1/4",
+    "spec": "33201202 NGC-02Y",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-1000",
-    "maker": "三ﾂ星",
-    "productCode": "5V1000",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ C 型 PT3/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNIC3/8",
+    "spec": "33201203 NGC-03Y",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-1060",
-    "maker": "三ﾂ星",
-    "productCode": "5V1060",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ A 型 M6XP0.75",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIAM60.75",
+    "spec": "33200708 NGA-6075K",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-1120",
-    "maker": "三ﾂ星",
-    "productCode": "5V1120",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ A 型 M6XP1.0",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIAM61.0",
+    "spec": "33200707 NGA-610K",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-1180",
-    "maker": "三ﾂ星",
-    "productCode": "5V1180",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ A 型 UNF1/4X28",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIAU1/428",
+    "spec": "33200710 NGA-0228K",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-1250",
-    "maker": "三ﾂ星",
-    "productCode": "5V1250",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ A 型 PT1/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIA1/8",
+    "spec": "33200701 NGA-01K 全長20L",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-1320",
-    "maker": "三ﾂ星",
-    "productCode": "5V1320",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ A 型 PF1/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIAPF1/8",
+    "spec": "33200702 NGA-11K 全長14.3L",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-1400",
-    "maker": "三ﾂ星",
-    "productCode": "5V1400",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ A 型 PT1/4",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIA1/4",
+    "spec": "33200703 NGA-02K",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-1500",
-    "maker": "三ﾂ星",
-    "productCode": "5V1500",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ A 型 PT3/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIA3/8",
+    "spec": "33200705 NGA-03K",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-1600",
-    "maker": "三ﾂ星",
-    "productCode": "5V1600",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ A 型 PT1/2",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIA1/2",
+    "spec": "33200706 NGA-04K",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-1700",
-    "maker": "三ﾂ星",
-    "productCode": "5V1700",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ B 型 M6XP0.75",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIBM60.75",
+    "spec": "33200806 NGB-6075K",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-1800",
-    "maker": "三ﾂ星",
-    "productCode": "5V1800",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ B 型 M6XP1.0",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIBM61.0",
+    "spec": "33200805 NGB-610K",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-1900",
-    "maker": "三ﾂ星",
-    "productCode": "5V1900",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ B 型 UNF1/4X28",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIBU1/428",
+    "spec": "33200808 NGB-0228K",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-2000",
-    "maker": "三ﾂ星",
-    "productCode": "5V2000",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ B 型 PT1/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIB1/8",
+    "spec": "33200801 NGB-01K 全長21L",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-2120",
-    "maker": "三ﾂ星",
-    "productCode": "5V2120",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ B 型 PT1/4",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIB1/4",
+    "spec": "33200802 NGB-02K",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-2240",
-    "maker": "三ﾂ星",
-    "productCode": "5V2240",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ B 型 PT3/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIB3/8",
+    "spec": "33200803 NGB-03K",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-2360",
-    "maker": "三ﾂ星",
-    "productCode": "5V2360",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ C 型 M6XP0.75",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNICM60.75",
+    "spec": "33200906 NGC-6075K",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-2500",
-    "maker": "三ﾂ星",
-    "productCode": "5V2500",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ C 型 M6XP1.0",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNICM61.0",
+    "spec": "33200905 NGC-610K",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-2650",
-    "maker": "三ﾂ星",
-    "productCode": "5V2650",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ C 型 UNF1/4X28",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNICU1/428",
+    "spec": "33200908 NGC-0228K",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-2800",
-    "maker": "三ﾂ星",
-    "productCode": "5V2800",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ C 型 PT1/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIC1/8",
+    "spec": "33200901 NGC-01K 全長21L",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-3000",
-    "maker": "三ﾂ星",
-    "productCode": "5V3000",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ C 型 PT1/4",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIC1/4",
+    "spec": "33200902 NGC-02K",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-3150",
-    "maker": "三ﾂ星",
-    "productCode": "5V3150",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ C 型 PT3/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIC3/8",
+    "spec": "33200903 NGC-03K",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-3350",
-    "maker": "三ﾂ星",
-    "productCode": "5V3350",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ ﾎﾞﾀﾝﾍｯﾄﾞ PT1/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNIBTN1/8",
+    "spec": "33201401 NBH-01Y",
+    "unit": "ヶ"
   },
   {
-    "name": "三ﾂ星  ﾏｯｸｽﾀｰ ｳｪｯｼﾞﾍﾞﾙﾄ     5V-3550",
-    "maker": "三ﾂ星",
-    "productCode": "5V3550",
-    "spec": "",
-    "unit": "本"
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ ﾎﾞﾀﾝﾍｯﾄﾞ PT1/4",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNIBTN1/4",
+    "spec": "33201403 NBH-02Y",
+    "unit": "ヶ"
+  },
+  {
+    "name": "黄銅生地 ｸﾞﾘｽﾆｯﾌﾟﾙ ﾎﾞﾀﾝﾍｯﾄﾞ PT3/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "GNIBTN3/8",
+    "spec": "33201405 NBH-03Y",
+    "unit": "ヶ"
+  },
+  {
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ ﾋﾟﾝﾀｲﾌﾟ PT1/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIP1/8",
+    "spec": "33201501 NPY-01K",
+    "unit": "ヶ"
+  },
+  {
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ ﾋﾟﾝﾀｲﾌﾟ PT1/4",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIP1/4",
+    "spec": "33201503 NPY-02K",
+    "unit": "ヶ"
+  },
+  {
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ ﾋﾟﾝﾀｲﾌﾟ PT3/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIP3/8",
+    "spec": "33201505 NPY-03K",
+    "unit": "ヶ"
+  },
+  {
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ ﾎﾞﾀﾝﾍｯﾄﾞ PT1/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIBTN1/8",
+    "spec": "33201301 NBH-01Y",
+    "unit": "ヶ"
+  },
+  {
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ ﾎﾞﾀﾝﾍｯﾄﾞ PT1/4",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIBTN1/4",
+    "spec": "33201303 NBH-02Y",
+    "unit": "ヶ"
+  },
+  {
+    "name": "黄銅ﾒｯｷ付 ｸﾞﾘｽﾆｯﾌﾟﾙ ﾎﾞﾀﾝﾍｯﾄﾞ PT3/8",
+    "maker": "ﾌﾛｰﾊﾞﾙ",
+    "productCode": "MGNIBTN3/8",
+    "spec": "33201305 NBH-03Y",
+    "unit": "ヶ"
   }
 ]

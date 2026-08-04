@@ -190,7 +190,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // Build system prompt (lean - no product dump)
-    let systemPrompt = `あなたは「サトー産業」のAIアシスタントです。愛媛県松山市の産業資材・設備機器の総合商社です。
+    let systemPrompt = `あなたは「サトー産業」のAIアシスタントです。愛媛県四国中央市の産業資材・設備機器の総合商社です。
 
 あなたの役割:
 1. お客様の質問に丁寧に日本語で回答する。質問内容が事業と無関係であっても無視したり拒否したりせず、まずは親切に回答してください。

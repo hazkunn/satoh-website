@@ -9,9 +9,17 @@
 
 import { vBeltModelData, type VBeltModel } from "./vBeltModelsData";
 import { wedgeBeltModelData, type WedgeBeltModel } from "./wedgeBeltModelsData";
+import {
+  greaseNippleModelData,
+  greaseNippleSeries,
+  greaseNippleShapeDescriptions,
+  greaseNippleThreadDescriptions,
+  type GreaseNippleModel,
+} from "./greaseNippleModelsData";
 
 // Unified belt model type for all belt varieties (V-belt, wedge belt, etc.)
 export type BeltModel = VBeltModel | WedgeBeltModel;
+export type AnyModel = BeltModel | GreaseNippleModel;
 
 export type Spec = { label: string; value: string };
 
@@ -76,7 +84,31 @@ const inventoryDataRaw: ListingCategory[] = [
   {
     category: "管工器材",
     description: "配管・継手・バルブ等の管工器材",
-    subCategories: [],
+    subCategories: [
+      {
+        subCategory: "潤滑継手",
+        description: "グリスニップル・潤滑継手関連部品",
+        productTypes: [
+          {
+            productType: "グリスニップル",
+            description:
+              "グリスニップル（ grease nipple ）は、機械の潤滑部にグリスを注入するための継手です。A型（直形）、B型（45°曲がり）、C型（90°曲がり）、ピンタイプ、ボタンヘッドの各形状を取り揃えております。材質はステンレス（SUS303）、黄銅生地、黄銅メッキ付の3種類。",
+            brands: [
+              {
+                brand: "フローバル（Floral）",
+                description:
+                  "フローバル製グリスニップル。ステンレス（SUS303）、黄銅生地、黄銅メッキ付の3種類の材質を取り揃え。PTねじ、Mねじ、UNFねじ対応。",
+                series: greaseNippleSeries.map((s) => ({
+                  name: `フローバル グリスニップル ${s.name}`,
+                  slug: s.slug,
+                  series: s.name,
+                })),
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
   {
     category: "電動機器",
@@ -366,6 +398,37 @@ const detailedProducts: Record<string, Product> = {
       { label: "単位", value: "本" },
     ],
   },
+
+  // ── フローバル グリスニップル (Floral grease nipples) ──────
+  // Auto-generated from greaseNippleSeries + greaseNippleModelData
+  ...Object.fromEntries(
+    greaseNippleSeries.map((s) => {
+      const models = greaseNippleModelData
+        .filter((m) => m.seriesSlug === s.slug)
+        .map((m) => m.urlCode);
+      const shapeDesc = greaseNippleShapeDescriptions[s.shape];
+      return [
+        s.slug,
+        {
+          slug: s.slug,
+          name: `フローバル グリスニップル ${s.name}`,
+          category: "潤滑継手",
+          maker: "フローバル（Floral）",
+          series: s.name,
+          description: `フローバル（Floral）製グリスニップル ${s.name}（材質：${s.material}、形状：${s.shape}（${shapeDesc}））。PTねじ・Mねじ・UNFねじ対応。各種産業機械・自動車・建設機械の潤滑部に最適です。`,
+          models,
+          specifications: [
+            { label: "メーカー", value: "フローバル（Floral）" },
+            { label: "商品種類", value: "グリスニップル" },
+            { label: "材質", value: s.material },
+            { label: "形状", value: `${s.shape}（${shapeDesc}）` },
+            { label: "対応ねじ", value: "PT・M・UNF" },
+            { label: "単位", value: "ヶ" },
+          ],
+        } satisfies Product,
+      ];
+    })
+  ),
 };
 
 export function getProductBySlug(slug: string): Product | undefined {
@@ -505,44 +568,123 @@ export function getVBeltModelSpecs(code: string): Spec[] | undefined {
 }
 
 // ============================================================
-// Async R2-backed functions (stock only — merged over static data)
+// Generalized model helpers — unified across belts & grease nipples
 // ============================================================
 
 /**
- * Get a product by slug. Static catalog data (specs, models, description)
- * comes from the codebase; the live stock count is overlaid from R2.
+ * Check if a slug is a grease nipple series.
  */
-export async function getProductBySlugAsync(
-  slug: string
-): Promise<Product | undefined> {
-  const { getStockBySlug } = await import("./loadInventory");
-  const staticProduct = getProductBySlug(slug);
-
-  if (!staticProduct) {
-    // Product may exist only in R2 stock data (rare) — return minimal
-    const stock = await getStockBySlug(slug);
-    if (stock !== undefined) {
-      return { slug, name: slug, category: "", maker: "", series: "", description: "", stock };
-    }
-    return undefined;
-  }
-
-  const stock = await getStockBySlug(slug);
-  return { ...staticProduct, stock };
+function isGreaseNippleSlug(slug: string): boolean {
+  return greaseNippleSeries.some((s) => s.slug === slug);
 }
 
 /**
- * Get all slugs — static slugs plus any R2-only slugs.
+ * Get grease nipple model by URL code.
  */
-export async function getItemSlugsAsync(): Promise<string[]> {
-  const { getStockData } = await import("./loadInventory");
-  const staticSlugs = getItemSlugs();
-  const data = await getStockData();
-  const merged = [...staticSlugs];
-  for (const item of data.items) {
-    if (!merged.includes(item.slug)) merged.push(item.slug);
+export function getGreaseNippleModelByCode(code: string): GreaseNippleModel | undefined {
+  const lower = code.toLowerCase();
+  return greaseNippleModelData.find((m) => m.urlCode.toLowerCase() === lower);
+}
+
+/**
+ * Get model data by code (unified — belts or grease nipples).
+ */
+export function getModelByCode(code: string): AnyModel | undefined {
+  return getVBeltModelByCode(code) ?? getGreaseNippleModelByCode(code);
+}
+
+/**
+ * Get model data by code, scoped to a specific product slug.
+ * This handles cases where the same urlCode appears in multiple series
+ * (e.g. SGNIBTN3_8 in both pin-type and button-head SUS303 series).
+ */
+export function getModelByCodeForSlug(code: string, slug: string): AnyModel | undefined {
+  // For grease nipples, filter by seriesSlug first
+  if (isGreaseNippleSlug(slug)) {
+    const lower = code.toLowerCase();
+    return greaseNippleModelData.find(
+      (m) => m.urlCode.toLowerCase() === lower && m.seriesSlug === slug
+    );
   }
-  return merged;
+  // For belts, the global lookup is safe (codes are unique per type)
+  return getVBeltModelByCode(code);
+}
+
+/**
+ * Get model codes for a specific product slug (unified).
+ * Returns belt codes for belt slugs, grease nipple urlCodes for grease nipple slugs.
+ */
+export function getModelCodesForSlug(slug: string): string[] {
+  if (isGreaseNippleSlug(slug)) {
+    return greaseNippleModelData
+      .filter((m) => m.seriesSlug === slug)
+      .map((m) => m.urlCode);
+  }
+  return getVBeltModelCodesForSlug(slug);
+}
+
+/**
+ * Get all slugs that have model detail pages (unified).
+ */
+export function getProductSlugsWithModels(): string[] {
+  return [...getVBeltProductSlugs(), ...greaseNippleSeries.map((s) => s.slug)];
+}
+
+/**
+ * Build specifications for a specific grease nipple model.
+ */
+function getGreaseNippleSpecs(gn: GreaseNippleModel): Spec[] {
+  const shapeDesc = greaseNippleShapeDescriptions[gn.shape];
+  const threadDesc = greaseNippleThreadDescriptions[gn.thread] ?? gn.thread;
+  const specs: Spec[] = [
+    { label: "メーカー", value: "フローバル（Floral）" },
+    { label: "商品番号", value: gn.code },
+    { label: "商品種類", value: "グリスニップル" },
+    { label: "材質", value: gn.material },
+    { label: "形状", value: `${gn.shape}（${shapeDesc}）` },
+    { label: "ねじ規格", value: threadDesc },
+    { label: "カタログ番号", value: gn.catalogNumber },
+    { label: "型番", value: gn.modelCode },
+  ];
+  if (gn.extraSpec) {
+    specs.push({ label: "備考", value: gn.extraSpec });
+  }
+  specs.push({ label: "単位", value: gn.unit });
+  return specs;
+}
+
+/**
+ * Build specifications for a specific model (unified).
+ * Handles V-belts, wedge belts, and grease nipples.
+ * Note: For grease nipples with duplicate urlCodes across series,
+ * use getModelSpecsForSlug instead.
+ */
+export function getModelSpecs(code: string): Spec[] | undefined {
+  // Try grease nipple first (urlCode), then belts
+  const gn = getGreaseNippleModelByCode(code);
+  if (gn) {
+    return getGreaseNippleSpecs(gn);
+  }
+
+  return getVBeltModelSpecs(code);
+}
+
+/**
+ * Build specifications for a specific model, scoped to a product slug.
+ * This handles cases where the same urlCode appears in multiple series.
+ */
+export function getModelSpecsForSlug(code: string, slug: string): Spec[] | undefined {
+  if (isGreaseNippleSlug(slug)) {
+    const lower = code.toLowerCase();
+    const gn = greaseNippleModelData.find(
+      (m) => m.urlCode.toLowerCase() === lower && m.seriesSlug === slug
+    );
+    if (gn) {
+      return getGreaseNippleSpecs(gn);
+    }
+    return undefined;
+  }
+  return getVBeltModelSpecs(code);
 }
 
 // ============================================================

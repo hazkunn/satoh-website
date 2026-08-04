@@ -2,10 +2,11 @@ import { unstable_cache } from "next/cache";
 import {
   readStockJson,
   type StockData,
+  type StockItem,
 } from "./r2Json";
 
 const EMPTY_DATA: StockData = {
-  version: 1,
+  version: 2,
   updatedAt: "",
   items: [],
 };
@@ -26,7 +27,15 @@ export const getStockData = unstable_cache(
   }
 );
 
-export async function getStockBySlug(slug: string): Promise<number | undefined> {
+export async function getStockBySlugAndModel(
+  slug: string,
+  model: string
+): Promise<number | undefined> {
   const data = await getStockData();
-  return data.items.find((i) => i.slug === slug)?.stock;
+  return data.items.find((i) => i.slug === slug && i.model === model)?.stock;
+}
+
+export async function getAllStockForSlug(slug: string): Promise<StockItem[]> {
+  const data = await getStockData();
+  return data.items.filter((i) => i.slug === slug);
 }

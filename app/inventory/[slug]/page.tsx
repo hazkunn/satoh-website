@@ -3,13 +3,16 @@ import Link from "next/link";
 import {
   getProductBySlug,
   getItemSlugs,
-  getVBeltModelByCode,
-  getVBeltProductSlugs,
+  getModelByCodeForSlug,
 } from "@/lib/inventory";
+import { getAllStockForSlug } from "@/lib/loadInventory";
 
 export function generateStaticParams() {
   return getItemSlugs().map((slug) => ({ slug }));
 }
+
+// Revalidate periodically so stock numbers refresh from R2.
+export const revalidate = 300;
 
 export default async function ProductPage({
   params,
@@ -22,6 +25,13 @@ export default async function ProductPage({
   if (!product) {
     notFound();
   }
+
+  // Load per-model stock from R2 (cached). May be empty if R2 is
+  // unavailable or no stock entry exists for this product.
+  const stockItems = await getAllStockForSlug(slug);
+  const stockMap = new Map(stockItems.map((i) => [i.model, i.stock]));
+  const hasStockData = stockItems.length > 0;
+  const totalStock = stockItems.reduce((sum, i) => sum + i.stock, 0);
 
   return (
     <>
@@ -61,6 +71,33 @@ export default async function ProductPage({
               <p className="text-lg text-gray-600 leading-relaxed">
                 {product.description}
               </p>
+
+              {/* Stock summary badge */}
+              <div className="mt-4">
+                {hasStockData ? (
+                  <span
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ${
+                      totalStock > 0
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    <span
+                      className={`w-2.5 h-2.5 rounded-full ${
+                        totalStock > 0 ? "bg-green-500" : "bg-red-500"
+                      }`}
+                    />
+                    {totalStock > 0
+                      ? `在庫あり（合計 ${totalStock} 点）`
+                      : "在庫切れ"}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-gray-100 text-gray-600">
+                    <span className="w-2.5 h-2.5 rounded-full bg-gray-400" />
+                    在庫情報はお問い合わせください
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Specifications */}
@@ -102,29 +139,56 @@ export default async function ProductPage({
                 <div className="p-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                     {product.models.map((model) => {
-                                          const hasDetailPage = getVBeltModelByCode(model) !== undefined;
-                                          if (hasDetailPage) {
-                                            return (
-                                              <Link
-                                                key={model}
-                                                href={`/inventory/${slug}/${model}`}
-                                                className="block bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm font-mono text-gray-700 hover:bg-blue-50 hover:border-blue-300 transition-colors"
-                                              >
-                                                {model}
-                                                <span className="text-blue-600 ml-2 text-xs">→ 詳細</span>
-                                              </Link>
-                                            );
-                                          }
-                                          return (
-                                            <div
-                                              key={model}
-                                              className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm font-mono text-gray-700"
-                                            >
-                                              {model}
-                                            </div>
-                                          );
-                                        })}
+                      const hasDetailPage =
+                        getModelByCodeForSlug(model, slug) !== undefined;
+                      const stock = stockMap.get(model);
+                      const hasStock = hasStockData && stock !== undefined;
+                      const inStock = hasStock && (stock as number) > 0;
+
+                      const stockBadge = hasStock ? (
+                        <span
+                          className={`ml-2 text-xs font-semibold ${
+                            inStock ? "text-green-600" : "text-red-500"
+                          }`}
+                        >
+                          {inStock ? `在庫 ${stock}` : "在庫切れ"}
+                        </span>
+                      ) : null;
+
+                      if (hasDetailPage) {
+                        return (
+                          <Link
+                            key={model}
+                            href={`/inventory/${slug}/${model}`}
+                            className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm font-mono text-gray-700 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                          >
+                            <span>
+                              {model}
+                              <span className="text-blue-600 ml-2 text-xs">
+                                → 詳細
+                              </span>
+                            </span>
+                            {stockBadge}
+                          </Link>
+                        );
+                      }
+                      return (
+                        <div
+                          key={model}
+                          className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm font-mono text-gray-700"
+                        >
+                          <span>{model}</span>
+                          {stockBadge}
+                        </div>
+                      );
+                    })}
                   </div>
+
+                  {!hasStockData && (
+                    <p className="mt-4 text-sm text-gray-500">
+                      在庫数についてはお問い合わせください。
+                    </p>
+                  )}
                 </div>
               </div>
             )}

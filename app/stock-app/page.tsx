@@ -3,85 +3,44 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
-type Product = {
+// ── Types ──────────────────────────────────────────────────
+
+type ModelEntry = { code: string; stock: number };
+
+type ProductDetail = {
   slug: string;
   name: string;
-  stock: number;
-  models: string[];
+  models: ModelEntry[];
 };
 
-type ScanState = "idle" | "scanning" | "found" | "error";
+type Step = "menu" | "scanning" | "product" | "confirm" | "done";
+type Mode = "add" | "sold";
+
+// ── Component ──────────────────────────────────────────────
 
 export default function StockAppPage() {
   const router = useRouter();
-  const [scanState, setScanState] = useState<ScanState>("idle");
-  const [scannedSlug, setScannedSlug] = useState("");
-  const [product, setProduct] = useState<Product | null>(null);
-  const [movementType, setMovementType] = useState<"add" | "sold">("sold");
+
+  const [step, setStep] = useState<Step>("menu");
+  const [mode, setMode] = useState<Mode>("sold");
+  const [product, setProduct] = useState<ProductDetail | null>(null);
+  const [selectedModel, setSelectedModel] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
-  const [scannerRunning, setScannerRunning] = useState(false);
+  const [scanning, setScanning] = useState(false);
 
-  const scannerRef = useRef<any>(null);
   const html5QrCodeRef = useRef<any>(null);
 
-  // Check auth on mount
+  // ── Auth check on mount ──────────────────────────────────
   useEffect(() => {
-    checkAuthStatus();
-  }, []);
-
-  async function checkAuthStatus() {
-    try {
-      const res = await fetch("/api/stock/products");
-      if (res.status === 401) {
-        router.push("/stock-app/login");
-      }
-    } catch {
-      // ignore
+    if (sessionStorage.getItem("stock-app-auth") !== "ok") {
+      router.push("/stock-app/login");
     }
-  }
+  }, [router]);
 
-  // Start QR scanner
-  const startScanner = useCallback(async () => {
-    setError("");
-    setScanState("scanning");
-    setScannerRunning(true);
-
-    try {
-      const { Html5Qrcode } = await import("html5-qrcode");
-      const elementId = "qr-reader";
-
-      const html5QrCode = new Html5Qrcode(elementId);
-      html5QrCodeRef.current = html5QrCode;
-
-      await html5QrCode.start(
-        { facingMode: "environment" },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-        },
-        (decodedText: string) => {
-          // On successful scan
-          setScannedSlug(decodedText.trim());
-          setScanState("found");
-          stopScanner();
-          lookupProduct(decodedText.trim());
-        },
-        () => {
-          // Ignore per-frame errors
-        }
-      );
-    } catch (err) {
-      console.error("Scanner start error:", err);
-      setError("カメラを起動できませんでした。HTTPS環境またはカメラ権限を確認してください。");
-      setScanState("error");
-      setScannerRunning(false);
-    }
-  }, []);
-
-  // Stop QR scanner
+  // ── Stop scanner helper ─────────────────────────────────
   const stopScanner = useCallback(async () => {
     if (html5QrCodeRef.current) {
       try {
@@ -92,85 +51,135 @@ export default function StockAppPage() {
       }
       html5QrCodeRef.current = null;
     }
-    setScannerRunning(false);
+    setScanning(false);
   }, []);
 
-  // Cleanup on unmount
+  // ── Start QR scanner ────────────────────────────────────
+  const startScanner = useCallback(async () => {
+    setError("");
+    setScanning(true);
+    try {
+      const { Html5Qrcode } = await import("html5-qrcode");
+      const html5QrCode = new Html5Qrcode("qr-reader");
+      html5QrCodeRef.current = html5QrCode;
+
+      await html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        (decodedText: string) => {
+          const slug = decodedText.trim();
+          stopScanner();
+          lookupProduct(slug);
+        },
+        () => {
+          // per-frame error — ignore
+        }
+      );
+    } catch (err) {
+      console.error("Scanner error:", err);
+      setError(
+        "カメラを起動できませんでした。HTTPS環境またはカメラ権限を確認してください。"
+      );
+      setScanning(false);
+    }
+  }, [stopScanner]);
+
+  // ── Auto-start scanner when entering scanning step ──────
+  useEffect(() => {
+    if (step === "scanning") {
+      startScanner();
+    }
+  }, [step, startScanner]);
+
+  // ── Cleanup scanner on unmount ──────────────────────────
   useEffect(() => {
     return () => {
       if (html5QrCodeRef.current) {
-        html5QrCodeRef.current.stop().then(() => {
-          html5QrCodeRef.current?.clear();
-        }).catch(() => {});
+        html5QrCodeRef.current
+          .stop()
+          .then(() => html5QrCodeRef.current?.clear())
+          .catch(() => {});
       }
     };
   }, []);
 
-  // Lookup product by slug
+  // ── Lookup product by slug ──────────────────────────────
   async function lookupProduct(slug: string) {
     setError("");
     setLoading(true);
+    setStep("product");
     try {
-      const res = await fetch(`/api/stock/products?slug=${encodeURIComponent(slug)}`);
+      const res = await fetch(
+        `/api/stock/products?slug=${encodeURIComponent(slug)}`
+      );
       const data = await res.json();
-
       if (!res.ok) {
         setError(data.error || "商品が見つかりません");
         setProduct(null);
+        setStep("menu");
         return;
       }
-
-      setProduct(data.product);
+      const p: ProductDetail = data.product;
+      setProduct(p);
+      // Auto-select first model
+      if (p.models.length > 0) {
+        setSelectedModel(p.models[0].code);
+      }
     } catch {
       setError("商品情報の取得に失敗しました");
       setProduct(null);
+      setStep("menu");
     } finally {
       setLoading(false);
     }
   }
 
-  // Submit movement
-  async function handleSubmit(e: React.FormEvent) {
+  // ── Manual slug entry ───────────────────────────────────
+  function handleManualInput(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
-    setSuccess("");
-    setLoading(true);
+    const input = (e.target as HTMLFormElement).elements.namedItem(
+      "manualSlug"
+    ) as HTMLInputElement;
+    const slug = input.value.trim();
+    if (!slug) return;
+    lookupProduct(slug);
+  }
 
+  // ── Proceed to confirm ───────────────────────────────────
+  function handleProceedToConfirm(e: React.FormEvent) {
+    e.preventDefault();
+    if (!product || !selectedModel || quantity < 1) return;
+    setStep("confirm");
+  }
+
+  // ── Submit movement ─────────────────────────────────────
+  async function handleConfirm() {
+    if (!product || !selectedModel) return;
+    setLoading(true);
+    setError("");
     try {
       const res = await fetch("/api/stock/movement", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          slug: scannedSlug,
-          type: movementType,
+          slug: product.slug,
+          model: selectedModel,
+          type: mode,
           quantity,
         }),
       });
-
       const data = await res.json();
-
       if (!res.ok) {
         setError(data.error || "在庫更新に失敗しました");
         return;
       }
 
-      setSuccess(
-        `在庫更新完了: ${data.beforeStock} → ${data.afterStock} (${movementType === "add" ? "+" : "-"}${quantity})`
+      setInfo(
+        `完了: ${product.name} ${selectedModel} — ${data.beforeStock} → ${data.afterStock} (${
+          mode === "add" ? "+" : "-"
+        }${quantity})`
       );
-
-      // Update local product stock
-      if (product) {
-        setProduct({ ...product, stock: data.afterStock });
-      }
-
-      // Reset for next scan after 2 seconds
-      setTimeout(() => {
-        setSuccess("");
-        setScannedSlug("");
-        setProduct(null);
-        setQuantity(1);
-        setScanState("idle");
-      }, 2000);
+      setStep("done");
     } catch {
       setError("ネットワークエラーが発生しました");
     } finally {
@@ -178,25 +187,23 @@ export default function StockAppPage() {
     }
   }
 
-  // Manual slug input
-  function handleManualInput(e: React.FormEvent) {
-    e.preventDefault();
-    const input = (e.target as HTMLFormElement).elements.namedItem("manualSlug") as HTMLInputElement;
-    const slug = input.value.trim();
-    if (!slug) return;
-    setScannedSlug(slug);
-    setScanState("found");
-    lookupProduct(slug);
+  // ── Reset to menu ───────────────────────────────────────
+  function resetToMenu() {
+    setProduct(null);
+    setSelectedModel("");
+    setQuantity(1);
+    setError("");
+    setInfo("");
+    setStep("menu");
   }
 
-  function handleReset() {
-    setScannedSlug("");
-    setProduct(null);
-    setError("");
-    setSuccess("");
-    setQuantity(1);
-    setScanState("idle");
-  }
+  // ── Get current model stock ─────────────────────────────
+  const currentModelStock =
+    product?.models.find((m) => m.code === selectedModel)?.stock ?? 0;
+
+  // ══════════════════════════════════════════════════════════
+  // RENDER
+  // ══════════════════════════════════════════════════════════
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -212,42 +219,58 @@ export default function StockAppPage() {
       </header>
 
       <main className="max-w-md mx-auto px-4 py-6">
-        {/* Success message */}
-        {success && (
-          <div className="bg-green-50 border border-green-200 text-green-800 p-4 rounded-xl mb-4 text-center font-semibold">
-            ✓ {success}
-          </div>
-        )}
-
-        {/* Error message */}
+        {/* Error */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl mb-4">
             {error}
           </div>
         )}
 
-        {/* Scan state: idle */}
-        {scanState === "idle" && !success && (
+        {/* Info / success */}
+        {info && step === "done" && (
+          <div className="bg-green-50 border border-green-200 text-green-800 p-4 rounded-xl mb-4 text-center font-semibold">
+            ✓ {info}
+          </div>
+        )}
+
+        {/* ── Step: menu (choose add or sold) ─────────────── */}
+        {step === "menu" && (
           <div className="space-y-6">
-            <div className="text-center">
-              <div className="inline-block w-20 h-20 bg-blue-900 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l4 4m8 0V4m0 0h-4m4 0l-4 4m-8 8v4m0 0h4m-4 0l4-4m8 0v4m0 0h-4m4 0l-4-4" />
-                </svg>
-              </div>
-              <h2 className="text-xl font-bold text-gray-900 mb-2">QRコードをスキャン</h2>
+            <div className="text-center pt-4">
+              <h2 className="text-xl font-bold text-gray-900 mb-2">
+                操作を選択
+              </h2>
               <p className="text-gray-500 text-sm mb-6">
-                商品のQRコードをスキャンして在庫を更新します
+                入庫または出庫を選んでからQRコードをスキャンします
               </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
               <button
-                onClick={startScanner}
-                className="w-full bg-blue-900 text-white py-4 rounded-xl font-semibold text-lg hover:bg-blue-800 transition-colors"
+                onClick={() => {
+                  setMode("sold");
+                  setStep("scanning");
+                }}
+                className="bg-red-600 text-white py-8 rounded-xl font-bold text-lg hover:bg-red-500 transition-colors flex flex-col items-center gap-2"
               >
-                スキャン開始
+                <span className="text-3xl">▼</span>
+                <span>出庫</span>
+                <span className="text-xs font-normal opacity-80">売上・出庫</span>
+              </button>
+              <button
+                onClick={() => {
+                  setMode("add");
+                  setStep("scanning");
+                }}
+                className="bg-green-600 text-white py-8 rounded-xl font-bold text-lg hover:bg-green-500 transition-colors flex flex-col items-center gap-2"
+              >
+                <span className="text-3xl">▲</span>
+                <span>入庫</span>
+                <span className="text-xs font-normal opacity-80">仕入・入庫</span>
               </button>
             </div>
 
-            {/* Manual input */}
+            {/* Manual input fallback */}
             <div className="border-t border-gray-200 pt-6">
               <p className="text-center text-gray-500 text-sm mb-3">
                 または品番を手動入力
@@ -256,8 +279,8 @@ export default function StockAppPage() {
                 <input
                   type="text"
                   name="manualSlug"
-                  placeholder="品番 (例: SATO-001)"
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="スラッグ (例: mitsuboshi-v-belt-a)"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                 />
                 <button
                   type="submit"
@@ -267,29 +290,75 @@ export default function StockAppPage() {
                 </button>
               </form>
             </div>
+
+            {/* Link to QR code page */}
+            <div className="border-t border-gray-200 pt-4 text-center">
+              <a
+                href="/stock-app/qr-codes"
+                className="text-blue-600 text-sm hover:underline"
+              >
+                QRコード一覧を表示 →
+              </a>
+            </div>
           </div>
         )}
 
-        {/* Scan state: scanning */}
-        {scanState === "scanning" && (
-          <div>
-            <div id="qr-reader" className="w-full rounded-xl overflow-hidden mb-4" />
+        {/* ── Step: scanning ─────────────────────────────── */}
+        {step === "scanning" && (
+          <div className="space-y-4">
+            <div className="text-center">
+              <span
+                className={`inline-block px-4 py-1 rounded-full text-sm font-semibold ${
+                  mode === "sold"
+                    ? "bg-red-100 text-red-700"
+                    : "bg-green-100 text-green-700"
+                }`}
+              >
+                {mode === "sold" ? "▼ 出庫モード" : "▲ 入庫モード"}
+              </span>
+            </div>
+
+            <div id="qr-reader" className="w-full rounded-xl overflow-hidden" />
+
+            {scanning && (
+              <p className="text-center text-gray-500 text-sm">
+                QRコードにカメラを向けてください...
+              </p>
+            )}
+
+            {/* Manual input while scanning */}
+            <div className="border-t border-gray-200 pt-4">
+              <form onSubmit={handleManualInput} className="flex gap-2">
+                <input
+                  type="text"
+                  name="manualSlug"
+                  placeholder="手動入力 (スラッグ)"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                />
+                <button
+                  type="submit"
+                  className="bg-gray-700 text-white px-4 py-3 rounded-lg font-semibold hover:bg-gray-600"
+                >
+                  検索
+                </button>
+              </form>
+            </div>
+
             <button
-              onClick={() => {
-                stopScanner();
-                setScanState("idle");
+              onClick={async () => {
+                await stopScanner();
+                setStep("menu");
               }}
               className="w-full bg-gray-600 text-white py-3 rounded-xl font-semibold hover:bg-gray-500"
             >
-              キャンセル
+              戻る
             </button>
           </div>
         )}
 
-        {/* Scan state: found */}
-        {scanState === "found" && (
+        {/* ── Step: product (select model + quantity) ────── */}
+        {step === "product" && (
           <div className="space-y-4">
-            {/* Product info */}
             {loading && (
               <div className="text-center py-8">
                 <p className="text-gray-500">商品情報を取得中...</p>
@@ -297,121 +366,266 @@ export default function StockAppPage() {
             )}
 
             {product && !loading && (
-              <div className="bg-white rounded-xl shadow p-6">
-                <div className="mb-4">
-                  <p className="text-xs text-gray-400 mb-1">品番</p>
-                  <p className="font-mono font-bold text-gray-900">{scannedSlug}</p>
+              <>
+                {/* Mode badge */}
+                <div className="text-center">
+                  <span
+                    className={`inline-block px-4 py-1 rounded-full text-sm font-semibold ${
+                      mode === "sold"
+                        ? "bg-red-100 text-red-700"
+                        : "bg-green-100 text-green-700"
+                    }`}
+                  >
+                    {mode === "sold" ? "▼ 出庫" : "▲ 入庫"}
+                  </span>
                 </div>
-                <div className="mb-4">
-                  <p className="text-xs text-gray-400 mb-1">商品名</p>
-                  <p className="text-gray-900 font-semibold">{product.name}</p>
-                </div>
-                {product.models.length > 0 && (
-                  <div className="mb-4">
-                    <p className="text-xs text-gray-400 mb-1">型番</p>
-                    <div className="flex flex-wrap gap-1">
-                      {product.models.map((m, i) => (
-                        <span key={i} className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
-                          {m}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                <div className="border-t border-gray-100 pt-4">
-                  <p className="text-xs text-gray-400 mb-1">現在の在庫</p>
-                  <p className={`text-3xl font-bold ${product.stock > 0 ? "text-green-600" : "text-red-600"}`}>
-                    {product.stock}
+
+                {/* Product card */}
+                <div className="bg-white rounded-xl shadow p-6">
+                  <p className="text-xs text-gray-400 mb-1">商品</p>
+                  <p className="text-gray-900 font-bold text-lg mb-1">
+                    {product.name}
                   </p>
-                </div>
-              </div>
-            )}
+                  <p className="text-xs text-gray-400 font-mono mb-4">
+                    {product.slug}
+                  </p>
 
-            {/* Movement form */}
-            {product && !loading && !success && (
-              <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow p-6 space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    操作
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
+                  {/* Model selector */}
+                  {product.models.length > 0 ? (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        型番を選択
+                      </label>
+                      <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg">
+                        {product.models.map((m) => (
+                          <button
+                            key={m.code}
+                            type="button"
+                            onClick={() => setSelectedModel(m.code)}
+                            className={`w-full flex items-center justify-between px-4 py-3 border-b border-gray-100 last:border-b-0 transition-colors ${
+                              selectedModel === m.code
+                                ? "bg-blue-50 text-blue-900 font-bold"
+                                : "hover:bg-gray-50"
+                            }`}
+                          >
+                            <span className="font-mono">{m.code}</span>
+                            <span
+                              className={`text-sm ${
+                                m.stock > 0 ? "text-green-600" : "text-red-500"
+                              }`}
+                            >
+                              在庫: {m.stock}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-sm mb-4">
+                      モデル情報がありません
+                    </p>
+                  )}
+
+                  {/* Current stock for selected model */}
+                  {selectedModel && (
+                    <div className="bg-gray-50 rounded-lg p-3 mb-4 text-center">
+                      <p className="text-xs text-gray-400">選択中の在庫</p>
+                      <p
+                        className={`text-2xl font-bold ${
+                          currentModelStock > 0
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        {currentModelStock}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Quantity input */}
+                  <form onSubmit={handleProceedToConfirm}>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      数量
+                    </label>
+                    <div className="flex items-center gap-3 mb-4">
+                      <button
+                        type="button"
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        className="w-12 h-12 bg-gray-100 rounded-lg text-xl font-bold text-gray-700 shrink-0"
+                      >
+                        −
+                      </button>
+                      <input
+                        type="number"
+                        value={quantity}
+                        onChange={(e) =>
+                          setQuantity(Math.max(1, parseInt(e.target.value) || 1))
+                        }
+                        min={1}
+                        className="flex-1 text-center text-2xl font-bold border border-gray-300 rounded-lg py-3 min-w-0"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setQuantity(quantity + 1)}
+                        className="w-12 h-12 bg-gray-100 rounded-lg text-xl font-bold text-gray-700 shrink-0"
+                      >
+                        +
+                      </button>
+                    </div>
+
                     <button
-                      type="button"
-                      onClick={() => setMovementType("sold")}
-                      className={`py-3 rounded-lg font-semibold transition-colors ${
-                        movementType === "sold"
-                          ? "bg-red-600 text-white"
-                          : "bg-gray-100 text-gray-700"
+                      type="submit"
+                      disabled={!selectedModel || quantity < 1}
+                      className={`w-full py-4 rounded-xl font-bold text-lg text-white transition-colors disabled:opacity-50 ${
+                        mode === "sold"
+                          ? "bg-red-600 hover:bg-red-500"
+                          : "bg-green-600 hover:bg-green-500"
                       }`}
                     >
-                      ▼ 出庫
+                      確認へ進む
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => setMovementType("add")}
-                      className={`py-3 rounded-lg font-semibold transition-colors ${
-                        movementType === "add"
-                          ? "bg-green-600 text-white"
-                          : "bg-gray-100 text-gray-700"
-                      }`}
-                    >
-                      ▲ 入庫
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    数量
-                  </label>
-                  <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="w-12 h-12 bg-gray-100 rounded-lg text-xl font-bold text-gray-700"
-                    >
-                      −
-                    </button>
-                    <input
-                      type="number"
-                      value={quantity}
-                      onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                      min={1}
-                      className="flex-1 text-center text-2xl font-bold border border-gray-300 rounded-lg py-3"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setQuantity(quantity + 1)}
-                      className="w-12 h-12 bg-gray-100 rounded-lg text-xl font-bold text-gray-700"
-                    >
-                      +
-                    </button>
-                  </div>
+                  </form>
                 </div>
 
                 <button
-                  type="submit"
-                  disabled={loading}
-                  className={`w-full py-4 rounded-xl font-semibold text-lg text-white transition-colors disabled:opacity-50 ${
-                    movementType === "sold"
-                      ? "bg-red-600 hover:bg-red-500"
-                      : "bg-green-600 hover:bg-green-500"
-                  }`}
+                  onClick={resetToMenu}
+                  className="w-full text-gray-500 py-3 hover:text-gray-700"
                 >
-                  {loading ? "送信中..." : `${movementType === "sold" ? "出庫" : "入庫"}実行`}
+                  戻る
                 </button>
-              </form>
+              </>
             )}
+          </div>
+        )}
 
-            {/* Reset button */}
-            {product && !loading && !success && (
-              <button
-                onClick={handleReset}
-                className="w-full text-gray-500 py-3 hover:text-gray-700"
-              >
-                別の商品をスキャン
-              </button>
-            )}
+        {/* ── Step: confirm ──────────────────────────────── */}
+        {step === "confirm" && product && (
+          <div className="space-y-4">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleConfirm();
+              }}
+            >
+              <div className="bg-white rounded-xl shadow p-6">
+                <h2 className="text-lg font-bold text-gray-900 mb-4 text-center">
+                  確認
+                </h2>
+
+                <div className="space-y-3 mb-6">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500 text-sm">操作</span>
+                    <span
+                      className={`font-semibold ${
+                        mode === "sold" ? "text-red-600" : "text-green-600"
+                      }`}
+                    >
+                      {mode === "sold" ? "▼ 出庫" : "▲ 入庫"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500 text-sm">商品</span>
+                    <span className="text-gray-900 font-semibold">
+                      {product.name}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500 text-sm">型番</span>
+                    <span className="text-gray-900 font-mono font-bold">
+                      {selectedModel}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500 text-sm">現在在庫</span>
+                    <span className="text-gray-900 font-semibold">
+                      {currentModelStock}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500 text-sm">数量</span>
+                    <span className="text-gray-900 font-bold text-xl">
+                      {mode === "sold" ? "−" : "+"}
+                      {quantity}
+                    </span>
+                  </div>
+                  <div className="border-t border-gray-200 pt-3 flex justify-between">
+                    <span className="text-gray-500 text-sm">更新後在庫</span>
+                    <span
+                      className={`font-bold text-xl ${
+                        mode === "sold"
+                          ? "text-red-600"
+                          : "text-green-600"
+                      }`}
+                    >
+                      {mode === "sold"
+                        ? Math.max(0, currentModelStock - quantity)
+                        : currentModelStock + quantity}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setStep("product")}
+                    className="bg-gray-200 text-gray-700 py-4 rounded-xl font-semibold hover:bg-gray-300"
+                  >
+                    戻る
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className={`py-4 rounded-xl font-bold text-white disabled:opacity-50 ${
+                      mode === "sold"
+                        ? "bg-red-600 hover:bg-red-500"
+                        : "bg-green-600 hover:bg-green-500"
+                    }`}
+                  >
+                    {loading ? "送信中..." : "確定 (Enter)"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* ── Step: done ─────────────────────────────────── */}
+        {step === "done" && (
+          <div className="space-y-4">
+            <div className="bg-white rounded-xl shadow p-6 text-center">
+              <div className="inline-block w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                <svg
+                  className="w-8 h-8 text-green-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={3}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-lg font-bold text-gray-900 mb-2">
+                在庫更新完了
+              </h2>
+              {info && (
+                <p className="text-gray-600 text-sm mb-6">{info}</p>
+              )}
+            </div>
+
+            <button
+              onClick={resetToMenu}
+              className={`w-full py-4 rounded-xl font-bold text-lg text-white ${
+                mode === "sold"
+                  ? "bg-red-600 hover:bg-red-500"
+                  : "bg-green-600 hover:bg-green-500"
+              }`}
+            >
+              次の操作へ
+            </button>
           </div>
         )}
       </main>

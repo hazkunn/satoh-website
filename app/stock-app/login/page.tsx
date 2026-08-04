@@ -3,37 +3,20 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+const PASSWORD = process.env.NEXT_PUBLIC_STOCK_APP_PASSWORD || "satoh-stock-2024";
+
 export default function StockAppLoginPage() {
   const router = useRouter();
   const [password, setPassword] = useState("");
-  const [operatorName, setOperatorName] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    try {
-      const res = await fetch("/api/stock/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password, operatorName }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || "ログインに失敗しました");
-        setLoading(false);
-        return;
-      }
-
+    if (password === PASSWORD) {
+      sessionStorage.setItem("stock-app-auth", "ok");
       router.push("/stock-app");
-    } catch {
-      setError("ネットワークエラーが発生しました");
-      setLoading(false);
+    } else {
+      setError("パスワードが正しくありません");
     }
   }
 
@@ -49,20 +32,6 @@ export default function StockAppLoginPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                担当者名
-              </label>
-              <input
-                type="text"
-                value={operatorName}
-                onChange={(e) => setOperatorName(e.target.value)}
-                required
-                placeholder="山田 太郎"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-              />
-            </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 パスワード
@@ -85,10 +54,9 @@ export default function StockAppLoginPage() {
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition-colors"
             >
-              {loading ? "ログイン中..." : "ログイン"}
+              ログイン
             </button>
           </form>
         </div>
