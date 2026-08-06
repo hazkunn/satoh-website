@@ -17,22 +17,26 @@ export default function Header() {
   ];
 
   return (
-    <header className="bg-white shadow-md sticky top-0 z-50">
+    <header className="bg-white/90 backdrop-blur-md border-b border-slate-200/70 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-xl font-bold text-blue-900">サトー産業</span>
-            <span className="text-xs text-gray-500 hidden sm:inline">SATO SANGYO</span>
+          <Link href="/" className="flex items-baseline space-x-2.5 group">
+            <span className="font-mincho text-2xl font-semibold text-blue-900 tracking-tight transition-colors group-hover:text-blue-700">
+              サトー産業
+            </span>
+            <span className="text-[10px] font-medium text-slate-400 hidden sm:inline tracking-[0.3em] uppercase">
+              SATO&nbsp;SANGYO
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8">
+          <nav className="hidden md:flex items-center space-x-7">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-gray-700 hover:text-blue-900 font-medium transition-colors duration-200"
+                className="relative text-sm text-slate-600 hover:text-blue-900 font-medium tracking-wide transition-colors duration-200 after:absolute after:-bottom-1.5 after:left-0 after:h-px after:w-0 after:bg-blue-900 after:transition-all after:duration-300 hover:after:w-full"
               >
                 {item.label}
               </Link>
@@ -41,7 +45,7 @@ export default function Header() {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100"
+            className="md:hidden p-2 rounded-md text-slate-600 hover:bg-slate-100 transition-colors"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="メニューを開く"
           >
@@ -72,12 +76,12 @@ export default function Header() {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <nav className="md:hidden pb-4 border-t border-gray-100">
+          <nav className="md:hidden pb-5 border-t border-slate-100">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="block px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-900 font-medium rounded-md transition-colors duration-200"
+                className="block px-2 py-3.5 text-slate-700 hover:text-blue-900 hover:bg-blue-50/60 font-medium rounded-md transition-colors duration-200"
                 onClick={() => setIsMenuOpen(false)}
               >
                 {item.label}

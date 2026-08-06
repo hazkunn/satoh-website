@@ -39,7 +39,7 @@ export default function QrCodesPage() {
           }
           setQrDataUrls(urls);
         }
-      } catch (err) {
+      } catch {
         setError("データの取得に失敗しました");
       } finally {
         setLoading(false);

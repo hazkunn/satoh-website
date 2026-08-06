@@ -61,10 +61,16 @@ export default function ManufacturersPage() {
   return (
     <>
       {/* Page Header */}
-      <section className="bg-blue-900 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">取引メーカー</h1>
-          <p className="text-blue-200 max-w-2xl">
+      <section className="relative bg-blue-950 text-white py-16 md:py-20 overflow-hidden">
+        <div
+          className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(59,130,246,0.15),transparent_55%)]"
+          aria-hidden="true"
+        />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="eyebrow text-blue-300 mb-4">PARTNERS</p>
+          <h1 className="font-mincho text-3xl md:text-4xl font-semibold mb-5 tracking-tight">取引メーカー</h1>
+          <div className="accent-rule mb-5" />
+          <p className="text-blue-200/90 max-w-2xl leading-relaxed">
             サトー産業は、国内外の優れたメーカーと強固なパートナーシップを築き、
             お客様に高品質な製品をお届けしております。
           </p>
@@ -72,9 +78,9 @@ export default function ManufacturersPage() {
       </section>
 
       {/* Breadcrumb */}
-      <div className="bg-white border-b">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <Link href="/" className="text-sm text-blue-700 hover:text-blue-500">
+          <Link href="/" className="text-sm text-blue-700 hover:text-blue-500 transition-colors">
             ホーム
           </Link>
           <span className="text-sm text-gray-400 mx-2">{">"}</span>
@@ -83,22 +89,22 @@ export default function ManufacturersPage() {
       </div>
 
       {/* Content */}
-      <section className="py-16">
+      <section className="py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {manufacturers.map((category) => (
               <div
                 key={category.category}
-                className="bg-white rounded-xl shadow-md p-8"
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 hover:shadow-md hover:-translate-y-1 transition-all duration-300"
               >
-                <h2 className="text-lg font-bold text-blue-900 mb-6 pb-4 border-b border-gray-200">
+                <h2 className="font-mincho text-lg font-semibold text-blue-900 mb-6 pb-4 border-b border-gray-200 tracking-tight">
                   {category.category}
                 </h2>
                 <ul className="space-y-3">
                   {category.companies.map((company) => (
                     <li
                       key={company}
-                      className="text-gray-700 hover:text-blue-700 cursor-default"
+                      className="text-gray-700 hover:text-blue-700 cursor-default transition-colors"
                     >
                       {company}
                     </li>
@@ -108,7 +114,7 @@ export default function ManufacturersPage() {
             ))}
           </div>
 
-          <div className="mt-12 bg-blue-50 rounded-xl p-8 text-center">
+          <div className="mt-12 bg-gradient-to-br from-blue-50 to-slate-50 rounded-2xl p-8 text-center border border-blue-100/60">
             <p className="text-gray-700 mb-4">
               上記は一例です。その他多数のメーカー製品を取り扱っております。
             </p>
@@ -117,7 +123,7 @@ export default function ManufacturersPage() {
             </p>
             <Link
               href="/company"
-              className="inline-block bg-blue-900 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-800 transition-colors duration-200"
+              className="inline-block bg-blue-900 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
             >
               お問い合わせ
             </Link>

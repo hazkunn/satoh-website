@@ -59,10 +59,16 @@ export default function ServicesPage() {
   return (
     <>
       {/* Page Header */}
-      <section className="bg-blue-900 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">サービス紹介</h1>
-          <p className="text-blue-200 max-w-2xl">
+      <section className="relative bg-blue-950 text-white py-16 md:py-20 overflow-hidden">
+        <div
+          className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(59,130,246,0.15),transparent_55%)]"
+          aria-hidden="true"
+        />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="eyebrow text-blue-300 mb-4">SERVICES</p>
+          <h1 className="font-mincho text-3xl md:text-4xl font-semibold mb-5 tracking-tight">サービス紹介</h1>
+          <div className="accent-rule mb-5" />
+          <p className="text-blue-200/90 max-w-2xl leading-relaxed">
             サトー産業は、製品販売から技術サポート、物流、設備導入まで、
             お客様のビジネスをトータルにサポートするサービスを提供しております。
           </p>
@@ -70,9 +76,9 @@ export default function ServicesPage() {
       </section>
 
       {/* Breadcrumb */}
-      <div className="bg-white border-b">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <Link href="/" className="text-sm text-blue-700 hover:text-blue-500">
+          <Link href="/" className="text-sm text-blue-700 hover:text-blue-500 transition-colors">
             ホーム
           </Link>
           <span className="text-sm text-gray-400 mx-2">{">"}</span>
@@ -81,7 +87,7 @@ export default function ServicesPage() {
       </div>
 
       {/* Services Content */}
-      <section className="py-16">
+      <section className="py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-16">
             {services.map((service, index) => (
@@ -92,9 +98,10 @@ export default function ServicesPage() {
                 } gap-8 items-start`}
               >
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  <h2 className="section-heading text-2xl text-gray-900 mb-4">
                     {service.title}
                   </h2>
+                  <div className="w-10 h-px bg-blue-200 mb-5" />
                   <p className="text-gray-600 leading-relaxed mb-6">
                     {service.description}
                   </p>
@@ -122,7 +129,7 @@ export default function ServicesPage() {
                     ))}
                   </ul>
                 </div>
-                <div className="flex-1 bg-blue-50 rounded-xl p-8 md:p-12 w-full">
+                <div className="flex-1 bg-gradient-to-br from-blue-50 to-slate-50 rounded-2xl p-8 md:p-12 w-full border border-blue-100/60">
                   <div className="text-blue-900">
                     <svg
                       className="w-16 h-16 mb-4"
@@ -137,10 +144,10 @@ export default function ServicesPage() {
                         d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                       />
                     </svg>
-                    <p className="text-lg font-semibold mb-2">
+                    <p className="font-mincho text-lg font-semibold mb-2">
                       まずはお気軽にご相談ください
                     </p>
-                    <p className="text-blue-700 text-sm">
+                    <p className="text-blue-700 text-sm leading-relaxed">
                       経験豊富なスタッフがお客様のニーズを伺い、最適なサービスをご提案いたします。
                     </p>
                   </div>
@@ -150,17 +157,19 @@ export default function ServicesPage() {
           </div>
 
           {/* CTA */}
-          <div className="mt-16 bg-blue-900 rounded-xl p-8 md:p-12 text-center text-white">
-            <h2 className="text-2xl font-bold mb-4">
+          <div className="mt-16 bg-gradient-to-br from-blue-900 to-blue-950 rounded-2xl p-8 md:p-12 text-center text-white shadow-lg">
+            <p className="eyebrow text-blue-300 mb-4">CONTACT</p>
+            <h2 className="font-mincho text-2xl md:text-3xl font-semibold mb-4 tracking-tight">
               サービスの詳細について
             </h2>
-            <p className="text-blue-200 mb-6 max-w-2xl mx-auto">
+            <div className="accent-rule mx-auto mb-6" />
+            <p className="text-blue-200/90 mb-8 max-w-2xl mx-auto leading-relaxed">
               各サービスの詳細やお見積もりについては、お気軽にお問い合わせください。
               専門スタッフが丁寧にご対応いたします。
             </p>
             <Link
               href="/company"
-              className="inline-block bg-white text-blue-900 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors duration-200"
+              className="inline-block bg-white text-blue-900 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
             >
               お問い合わせ
             </Link>

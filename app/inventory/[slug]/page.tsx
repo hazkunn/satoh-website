@@ -36,18 +36,18 @@ export default async function ProductPage({
   return (
     <>
       {/* Breadcrumb */}
-      <div className="bg-white border-b">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <Link
             href="/"
-            className="text-sm text-blue-700 hover:text-blue-500"
+            className="text-sm text-blue-700 hover:text-blue-500 transition-colors"
           >
             ホーム
           </Link>
           <span className="text-sm text-gray-400 mx-2">{">"}</span>
           <Link
             href="/inventory"
-            className="text-sm text-blue-700 hover:text-blue-500"
+            className="text-sm text-blue-700 hover:text-blue-500 transition-colors"
           >
             商品在庫案内
           </Link>
@@ -57,17 +57,18 @@ export default async function ProductPage({
       </div>
 
       {/* Product Detail */}
-      <section className="py-16">
+      <section className="py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
             {/* Header */}
             <div className="mb-8">
-              <span className="inline-block bg-blue-100 text-blue-800 text-sm font-semibold px-3 py-1 rounded-full mb-4">
+              <span className="inline-block bg-blue-50 text-blue-800 text-sm font-semibold px-4 py-1.5 rounded-full mb-4 border border-blue-100">
                 {product.category}
               </span>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              <h1 className="font-mincho text-3xl md:text-4xl font-semibold text-gray-900 mb-4 tracking-tight">
                 {product.name}
               </h1>
+              <div className="w-10 h-px bg-blue-200 mb-5" />
               <p className="text-lg text-gray-600 leading-relaxed">
                 {product.description}
               </p>
@@ -102,9 +103,9 @@ export default async function ProductPage({
 
             {/* Specifications */}
             {product.specifications && product.specifications.length > 0 && (
-              <div className="bg-white rounded-xl shadow-md overflow-hidden mb-8">
-                <div className="bg-blue-700 px-6 py-4">
-                  <h2 className="text-lg font-bold text-white">製品仕様</h2>
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+                <div className="bg-gradient-to-r from-blue-900 to-blue-800 px-6 py-4">
+                  <h2 className="font-mincho text-lg font-semibold text-white tracking-tight">製品仕様</h2>
                 </div>
                 <div className="p-6">
                   <table className="w-full">
@@ -132,9 +133,9 @@ export default async function ProductPage({
 
             {/* Model Numbers */}
             {product.models && product.models.length > 0 && (
-              <div className="bg-white rounded-xl shadow-md overflow-hidden mb-8">
-                <div className="bg-blue-700 px-6 py-4">
-                  <h2 className="text-lg font-bold text-white">型番一覧</h2>
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+                <div className="bg-gradient-to-r from-blue-900 to-blue-800 px-6 py-4">
+                  <h2 className="font-mincho text-lg font-semibold text-white tracking-tight">型番一覧</h2>
                 </div>
                 <div className="p-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
@@ -194,16 +195,17 @@ export default async function ProductPage({
             )}
 
             {/* CTA */}
-            <div className="bg-blue-50 rounded-xl p-8 text-center">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
+            <div className="bg-gradient-to-br from-blue-50 to-slate-50 rounded-2xl p-8 text-center border border-blue-100/60">
+              <h3 className="section-heading text-xl text-gray-900 mb-4">
                 この商品についてのお問い合わせ
               </h3>
+              <div className="w-10 h-px bg-blue-200 mx-auto mb-4" />
               <p className="text-gray-600 mb-6">
                 在庫確認や見積もりなど、お気軽にお問い合わせください。
               </p>
               <Link
                 href="/inquiry"
-                className="inline-block bg-blue-900 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-800 transition-colors duration-200"
+                className="inline-block bg-blue-900 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
               >
                 お問い合わせ
               </Link>
@@ -213,7 +215,7 @@ export default async function ProductPage({
             <div className="mt-8 text-center">
               <Link
                 href="/inventory"
-                className="text-blue-700 hover:text-blue-500 font-medium"
+                className="text-blue-700 hover:text-blue-500 font-medium transition-colors"
               >
                 ← 商品在庫案内に戻る
               </Link>

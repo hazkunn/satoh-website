@@ -245,7 +245,7 @@ ${WEBSITE_PAGES.map((p) => `- ${p.title}: ${p.path}`).join("\n")}
     let noResultsFound = false;
     if (isProductQuery(lastMessage)) {
       const searchQueries = extractSearchQueries(lastMessage);
-      let allResults: SearchResult[] = [];
+      const allResults: SearchResult[] = [];
 
       for (const searchQuery of searchQueries) {
         try {

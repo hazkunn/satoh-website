@@ -63,9 +63,10 @@ export async function GET(request: NextRequest) {
       products,
       updatedAt: data.updatedAt,
     });
-  } catch {
+  } catch (err) {
+    console.error("[api/stock/products] Failed to read stock from R2:", err);
     return NextResponse.json(
-      { error: "在庫データの読み込みに失敗しました" },
+      { error: "在庫データの読み込みに失敗しました", detail: String(err) },
       { status: 500 }
     );
   }

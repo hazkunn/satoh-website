@@ -28,31 +28,34 @@ function cellText(cell: ExcelJS.Cell): string {
   if (typeof v === "string") return v.trim();
   if (typeof v === "number") return String(v);
   if (typeof v === "boolean") return String(v);
+  if (v instanceof Date) return v.toISOString().split("T")[0];
   if (typeof v === "object") {
+    const obj = v as {
+      formula?: string;
+      result?: unknown;
+      richText?: { text: string }[];
+      text?: string;
+    };
     // Formula cell: { formula: "...", result: 123 } or { formula: "...", result: { ... } }
-    if ("formula" in (v as any) && "result" in (v as any)) {
-      const result = (v as any).result;
+    if (obj.formula !== undefined && obj.result !== undefined) {
+      const result = obj.result;
       if (result === null || result === undefined) return "";
       if (typeof result === "object") {
-        if ("text" in result) return String(result.text).trim();
-        if ("richText" in result) {
-          return (result.richText as any[]).map((r) => r.text).join("").trim();
+        const r = result as { text?: string; richText?: { text: string }[] };
+        if (r.text !== undefined) return String(r.text).trim();
+        if (r.richText !== undefined) {
+          return r.richText.map((rt) => rt.text).join("").trim();
         }
         return "";
       }
       return String(result).trim();
     }
     // Shared string with rich text: { richText: [...] }
-    if ("richText" in (v as any)) {
-      return ((v as any).richText as any[])
-        .map((r) => r.text)
-        .join("")
-        .trim();
+    if (obj.richText !== undefined) {
+      return obj.richText.map((rt) => rt.text).join("").trim();
     }
     // Hyperlink: { text: "...", hyperlink: "..." }
-    if ("text" in (v as any)) return String((v as any).text).trim();
-    // Date object
-    if (v instanceof Date) return v.toISOString().split("T")[0];
+    if (obj.text !== undefined) return String(obj.text).trim();
   }
   return String(v).trim();
 }
@@ -68,7 +71,7 @@ function csvEscape(value: string): string {
 
 /** Find the data sheet — "提出用書式" or first sheet with 商品名 in row 1. */
 function findDataSheet(wb: ExcelJS.Workbook): ExcelJS.Worksheet | undefined {
-  let sheet = wb.getWorksheet("提出用書式");
+  const sheet = wb.getWorksheet("提出用書式");
   if (sheet) return sheet;
   for (const ws of wb.worksheets) {
     for (let c = 1; c <= ws.columnCount; c++) {

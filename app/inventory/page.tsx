@@ -55,25 +55,25 @@ export default function InventoryPage() {
                         item.name.toLowerCase().includes(q) ||
                         item.series.toLowerCase().includes(q)
                     );
-                    return { ...br, series: matchedSeries, brandMatch };
+                    return { br, brandMatch, matchedSeries };
                   })
-                  .filter((br) => br.brandMatch || br.series.length > 0)
-                  .map(({ brandMatch, ...rest }) => rest);
+                  .filter((x) => x.brandMatch || x.matchedSeries.length > 0)
+                  .map(({ br, matchedSeries }) => ({ ...br, series: matchedSeries }));
 
-                return { ...pt, brands: matchedBrands, ptMatch };
+                return { pt, ptMatch, matchedBrands };
               })
-              .filter((pt) => pt.ptMatch || pt.brands.length > 0)
-              .map(({ ptMatch, ...rest }) => rest);
+              .filter((x) => x.ptMatch || x.matchedBrands.length > 0)
+              .map(({ pt, matchedBrands }) => ({ ...pt, brands: matchedBrands }));
 
-            return { ...sub, productTypes: matchedPTs, subMatch };
+            return { sub, subMatch, matchedPTs };
           })
-          .filter((sub) => sub.subMatch || sub.productTypes.length > 0)
-          .map(({ subMatch, ...rest }) => rest);
+          .filter((x) => x.subMatch || x.matchedPTs.length > 0)
+          .map(({ sub, matchedPTs }) => ({ ...sub, productTypes: matchedPTs }));
 
-        return { ...cat, subCategories: matchedSubs, catMatch };
+        return { cat, catMatch, matchedSubs };
       })
-      .filter((cat) => cat.catMatch || cat.subCategories.length > 0)
-      .map(({ catMatch, ...rest }) => rest);
+      .filter((x) => x.catMatch || x.matchedSubs.length > 0)
+      .map(({ cat, matchedSubs }) => ({ ...cat, subCategories: matchedSubs }));
 
     const totalResults = matched.reduce(
       (sum, c) =>
@@ -99,19 +99,25 @@ export default function InventoryPage() {
 
   return (
     <>
-      <section className="bg-blue-900 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">商品在庫案内</h1>
-          <p className="text-blue-200 max-w-2xl">
+      <section className="relative bg-blue-950 text-white py-16 md:py-20 overflow-hidden">
+        <div
+          className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(59,130,246,0.15),transparent_55%)]"
+          aria-hidden="true"
+        />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="eyebrow text-blue-300 mb-4">INVENTORY</p>
+          <h1 className="font-mincho text-3xl md:text-4xl font-semibold mb-5 tracking-tight">商品在庫案内</h1>
+          <div className="accent-rule mb-5" />
+          <p className="text-blue-200/90 max-w-2xl leading-relaxed">
             サトー産業は、常時豊富な在庫を確保し、お客様の急なご要望にも迅速に対応いたします。
             キーワードで在庫商品を検索できます。
           </p>
         </div>
       </section>
 
-      <div className="bg-white border-b">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <Link href="/" className="text-sm text-blue-700 hover:text-blue-500">
+          <Link href="/" className="text-sm text-blue-700 hover:text-blue-500 transition-colors">
             ホーム
           </Link>
           <span className="text-sm text-gray-400 mx-2">{">"}</span>
@@ -119,7 +125,7 @@ export default function InventoryPage() {
         </div>
       </div>
 
-      <section className="py-16">
+      <section className="py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Search Bar */}
           <div className="mb-12">
@@ -441,7 +447,7 @@ export default function InventoryPage() {
 
           {/* No Results */}
           {isSearching && filtered.totalResults === 0 && (
-            <div className="mt-8 bg-gray-50 rounded-xl p-12 text-center">
+            <div className="mt-8 bg-gray-50 rounded-2xl p-12 text-center border border-gray-100">
               <svg
                 className="w-16 h-16 mx-auto mb-4 text-gray-300"
                 fill="none"
@@ -460,7 +466,7 @@ export default function InventoryPage() {
               </p>
               <Link
                 href="/inquiry"
-                className="inline-block bg-blue-900 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-800 transition-colors"
+                className="inline-block bg-blue-900 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
               >
                 お問い合わせ
               </Link>
@@ -468,7 +474,7 @@ export default function InventoryPage() {
           )}
 
           {/* Note */}
-          <div className="mt-12 bg-yellow-50 border border-yellow-200 rounded-xl p-8">
+          <div className="mt-12 bg-yellow-50 border border-yellow-200 rounded-2xl p-8">
             <div className="flex items-start">
               <svg
                 className="w-6 h-6 text-yellow-600 mr-3 flex-shrink-0 mt-0.5"
@@ -497,16 +503,17 @@ export default function InventoryPage() {
           </div>
 
           {/* CTA */}
-          <div className="mt-12 bg-blue-50 rounded-xl p-8 text-center">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
+          <div className="mt-12 bg-gradient-to-br from-blue-50 to-slate-50 rounded-2xl p-8 text-center border border-blue-100/60">
+            <h3 className="section-heading text-xl text-gray-900 mb-4">
               在庫・納期のお問い合わせ
             </h3>
+            <div className="w-10 h-px bg-blue-200 mx-auto mb-4" />
             <p className="text-gray-600 mb-6">
               商品の在庫確認や納期については、お電話またはお問い合わせフォームよりご連絡ください。
             </p>
             <Link
               href="/inquiry"
-              className="inline-block bg-blue-900 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-800 transition-colors duration-200"
+              className="inline-block bg-blue-900 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
             >
               お問い合わせ
             </Link>

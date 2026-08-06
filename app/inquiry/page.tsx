@@ -87,10 +87,16 @@ ${formData.message}`
   return (
     <>
       {/* Page Header */}
-      <section className="bg-blue-900 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">お問い合わせ</h1>
-          <p className="text-blue-200 max-w-2xl">
+      <section className="relative bg-blue-950 text-white py-16 md:py-20 overflow-hidden">
+        <div
+          className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(59,130,246,0.15),transparent_55%)]"
+          aria-hidden="true"
+        />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="eyebrow text-blue-300 mb-4">CONTACT</p>
+          <h1 className="font-mincho text-3xl md:text-4xl font-semibold mb-5 tracking-tight">お問い合わせ</h1>
+          <div className="accent-rule mb-5" />
+          <p className="text-blue-200/90 max-w-2xl leading-relaxed">
             製品・サービスに関するお問い合わせ、お見積もりのご依頼など、
             お気軽にご連絡ください。
           </p>
@@ -98,9 +104,9 @@ ${formData.message}`
       </section>
 
       {/* Breadcrumb */}
-      <div className="bg-white border-b">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <Link href="/" className="text-sm text-blue-700 hover:text-blue-500">
+          <Link href="/" className="text-sm text-blue-700 hover:text-blue-500 transition-colors">
             ホーム
           </Link>
           <span className="text-sm text-gray-400 mx-2">{">"}</span>
@@ -108,15 +114,16 @@ ${formData.message}`
         </div>
       </div>
 
-      <section className="py-16">
+      <section className="py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Contact Information */}
             <div className="lg:col-span-1 space-y-8">
-              <div className="bg-white rounded-xl shadow-md p-8">
-                <h2 className="text-xl font-bold text-gray-900 mb-6">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+                <h2 className="section-heading text-xl text-gray-900 mb-6">
                   連絡先
                 </h2>
+                <div className="w-8 h-px bg-blue-200 mb-6" />
 
                 {/* Phone */}
                 <div className="flex items-start mb-6">
@@ -135,7 +142,7 @@ ${formData.message}`
                   </svg>
                   <div>
                     <p className="text-sm text-gray-500 mb-1">お電話</p>
-                    <p className="text-xl font-bold text-blue-900">
+                    <p className="font-mincho text-xl font-semibold text-blue-900 tracking-tight">
                       0896-23-2031
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
@@ -161,7 +168,7 @@ ${formData.message}`
                   </svg>
                   <div>
                     <p className="text-sm text-gray-500 mb-1">FAX</p>
-                    <p className="text-lg font-bold text-blue-900">
+                    <p className="font-mincho text-lg font-semibold text-blue-900 tracking-tight">
                       0896-24-1065
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
@@ -197,10 +204,11 @@ ${formData.message}`
                 </div>
               </div>
 
-              <div className="bg-blue-50 rounded-xl p-8">
-                <h3 className="text-lg font-bold text-gray-900 mb-3">
+              <div className="bg-gradient-to-br from-blue-50 to-slate-50 rounded-2xl p-8 border border-blue-100/60">
+                <h3 className="section-heading text-lg text-gray-900 mb-4">
                   お問い合わせの際のご注意
                 </h3>
+                <div className="w-8 h-px bg-blue-200 mb-4" />
                 <ul className="text-sm text-gray-600 space-y-2 leading-relaxed">
                   <li>・お問い合わせ内容によっては、回答にお時間をいただく場合がございます。</li>
                   <li>・土日祝日・休業日のお問い合わせは、翌営業日以降の回答となります。</li>
@@ -211,10 +219,11 @@ ${formData.message}`
 
             {/* Inquiry Form */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-xl shadow-md p-8">
-                <h2 className="text-xl font-bold text-gray-900 mb-8">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+                <h2 className="section-heading text-xl text-gray-900 mb-8">
                   メールでのお問い合わせ
                 </h2>
+                <div className="w-10 h-px bg-blue-200 mb-8" />
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
@@ -357,7 +366,7 @@ ${formData.message}`
                   <div className="pt-4">
                     <button
                       type="submit"
-                      className="w-full bg-blue-900 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-800 transition-colors duration-200 text-lg"
+                      className="w-full bg-blue-900 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-800 transition-all duration-200 text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5"
                     >
                       メールで送信する
                     </button>

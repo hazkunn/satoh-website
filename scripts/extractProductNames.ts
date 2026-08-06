@@ -28,13 +28,15 @@ function cellText(cell: ExcelJS.Cell): string {
   const v = cell.value;
   if (v === null || v === undefined) return "";
   if (typeof v === "object") {
-    if ("text" in (v as any)) return String((v as any).text).trim();
-    if ("result" in (v as any)) return String((v as any).result).trim();
-    if ("richText" in (v as any)) {
-      return ((v as any).richText as any[])
-        .map((r) => r.text)
-        .join("")
-        .trim();
+    const obj = v as {
+      text?: string;
+      result?: unknown;
+      richText?: { text: string }[];
+    };
+    if (obj.text !== undefined) return String(obj.text).trim();
+    if (obj.result !== undefined) return String(obj.result).trim();
+    if (obj.richText !== undefined) {
+      return obj.richText.map((r) => r.text).join("").trim();
     }
   }
   return String(v).trim();

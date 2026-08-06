@@ -1,5 +1,6 @@
 import { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { FetchHttpHandler } from "@smithy/fetch-http-handler";
 
 // R2 is S3-compatible, so we use the S3 client configured for Cloudflare R2
 function getR2Client() {
@@ -16,6 +17,8 @@ function getR2Client() {
   return new S3Client({
     region: "auto",
     endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+    forcePathStyle: true,
+    requestHandler: new FetchHttpHandler({ keepAlive: false }),
     credentials: {
       accessKeyId,
       secretAccessKey,

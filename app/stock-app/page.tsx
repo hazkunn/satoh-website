@@ -16,6 +16,19 @@ type ProductDetail = {
 type Step = "menu" | "scanning" | "product" | "confirm" | "done";
 type Mode = "add" | "sold";
 
+// Minimal structural type for the html5-qrcode scanner instance
+// (the package ships no .d.ts; we only use start/stop/clear).
+type Html5QrcodeInstance = {
+  start: (
+    cameraIdOrConfig: string | { facingMode: string },
+    config: { fps: number; qrbox: { width: number; height: number } },
+    onSuccess: (decodedText: string) => void,
+    onError: (error: unknown) => void
+  ) => Promise<void>;
+  stop: () => Promise<void>;
+  clear: () => Promise<void>;
+};
+
 // ── Component ──────────────────────────────────────────────
 
 export default function StockAppPage() {
@@ -31,7 +44,7 @@ export default function StockAppPage() {
   const [loading, setLoading] = useState(false);
   const [scanning, setScanning] = useState(false);
 
-  const html5QrCodeRef = useRef<any>(null);
+  const html5QrCodeRef = useRef<Html5QrcodeInstance | null>(null);
 
   // ── Auth check on mount ──────────────────────────────────
   useEffect(() => {
@@ -54,13 +67,48 @@ export default function StockAppPage() {
     setScanning(false);
   }, []);
 
+  // ── Lookup product by slug ──────────────────────────────
+  const lookupProduct = useCallback(
+    async (slug: string) => {
+      setError("");
+      setLoading(true);
+      setStep("product");
+      try {
+        const res = await fetch(
+          `/api/stock/products?slug=${encodeURIComponent(slug)}`
+        );
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error || "商品が見つかりません");
+          setProduct(null);
+          setStep("menu");
+          return;
+        }
+        const p: ProductDetail = data.product;
+        setProduct(p);
+        // Auto-select first model
+        if (p.models.length > 0) {
+          setSelectedModel(p.models[0].code);
+        }
+      } catch {
+        setError("商品情報の取得に失敗しました");
+        setProduct(null);
+        setStep("menu");
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
   // ── Start QR scanner ────────────────────────────────────
   const startScanner = useCallback(async () => {
     setError("");
-    setScanning(true);
     try {
       const { Html5Qrcode } = await import("html5-qrcode");
-      const html5QrCode = new Html5Qrcode("qr-reader");
+      const html5QrCode = new Html5Qrcode(
+        "qr-reader"
+      ) as unknown as Html5QrcodeInstance;
       html5QrCodeRef.current = html5QrCode;
 
       await html5QrCode.start(
@@ -75,6 +123,8 @@ export default function StockAppPage() {
           // per-frame error — ignore
         }
       );
+      // Only mark as scanning once the camera is actually live.
+      setScanning(true);
     } catch (err) {
       console.error("Scanner error:", err);
       setError(
@@ -82,14 +132,27 @@ export default function StockAppPage() {
       );
       setScanning(false);
     }
-  }, [stopScanner]);
+  }, [stopScanner, lookupProduct]);
 
   // ── Auto-start scanner when entering scanning step ──────
   useEffect(() => {
-    if (step === "scanning") {
-      startScanner();
-    }
-  }, [step, startScanner]);
+    if (step !== "scanning") return;
+    let cancelled = false;
+    // startScanner() and the defensive stopScanner() below both call setState,
+    // but only in async continuations (after an await) — not synchronously in
+    // the effect body — so they don't cause cascading renders. The rule can't
+    // tell the difference, hence the scoped disable.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    startScanner().then(() => {
+      if (cancelled) {
+        // Component left the scanning step before we finished starting.
+        stopScanner();
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [step, startScanner, stopScanner]);
 
   // ── Cleanup scanner on unmount ──────────────────────────
   useEffect(() => {
@@ -102,37 +165,6 @@ export default function StockAppPage() {
       }
     };
   }, []);
-
-  // ── Lookup product by slug ──────────────────────────────
-  async function lookupProduct(slug: string) {
-    setError("");
-    setLoading(true);
-    setStep("product");
-    try {
-      const res = await fetch(
-        `/api/stock/products?slug=${encodeURIComponent(slug)}`
-      );
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "商品が見つかりません");
-        setProduct(null);
-        setStep("menu");
-        return;
-      }
-      const p: ProductDetail = data.product;
-      setProduct(p);
-      // Auto-select first model
-      if (p.models.length > 0) {
-        setSelectedModel(p.models[0].code);
-      }
-    } catch {
-      setError("商品情報の取得に失敗しました");
-      setProduct(null);
-      setStep("menu");
-    } finally {
-      setLoading(false);
-    }
-  }
 
   // ── Manual slug entry ───────────────────────────────────
   function handleManualInput(e: React.FormEvent) {

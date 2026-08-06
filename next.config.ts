@@ -26,6 +26,13 @@ const nextConfig: NextConfig = {
       // },
     ],
   },
+  experimental: {
+    // Allow large original images (e.g. 8-11MB phone photos) to reach the
+    // /api/upload route handler intact so sharp can optimize them before they
+    // are written to R2. The default of 10MB would silently truncate such
+    // uploads. This only buffers when proxy is in use.
+    proxyClientMaxBodySize: "25mb",
+  },
 };
 
 export default nextConfig;

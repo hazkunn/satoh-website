@@ -3,6 +3,9 @@ import {
   GetObjectCommand,
   PutObjectCommand,
 } from "@aws-sdk/client-s3";
+import { FetchHttpHandler } from "@smithy/fetch-http-handler";
+
+const NoSuchKeyErrorNames = new Set(["NoSuchKey", "NotFound"]);
 
 function getR2Client() {
   const accountId = process.env.R2_ACCOUNT_ID;
@@ -18,6 +21,8 @@ function getR2Client() {
   return new S3Client({
     region: "auto",
     endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+    forcePathStyle: true,
+    requestHandler: new FetchHttpHandler({ keepAlive: false }),
     credentials: {
       accessKeyId,
       secretAccessKey,
@@ -59,8 +64,22 @@ export async function readStockJson(): Promise<StockData> {
     Bucket: R2_BUCKET_NAME,
     Key: STOCK_KEY,
   });
-  const response = await client.send(command);
-  const body = await response.Body!.transformToString("utf-8");
+
+  let body: string;
+  try {
+    const response = await client.send(command);
+    body = await response.Body!.transformToString("utf-8");
+  } catch (err: unknown) {
+    // If the object doesn't exist yet, return an empty stock document
+    // instead of crashing the API. This lets the app boot cleanly on a
+    // fresh R2 bucket before any stock has been seeded.
+    const name = (err as { name?: string; Code?: string }).name ?? (err as { Code?: string }).Code;
+    if (name && NoSuchKeyErrorNames.has(name)) {
+      return { version: 2, updatedAt: new Date().toISOString(), items: [] };
+    }
+    throw err;
+  }
+
   const parsed = JSON.parse(body) as StockData;
   // Normalize v1 (slug-only) → v2 by defaulting missing model to ""
   if (parsed.version < 2 || !parsed.items.every((i) => "model" in i)) {

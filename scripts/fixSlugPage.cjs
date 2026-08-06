@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const fs = require("fs");
 const filePath = "app/inventory/[slug]/page.tsx";
 let lines = fs.readFileSync(filePath, "utf8").split(/\r?\n/);

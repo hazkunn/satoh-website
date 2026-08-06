@@ -45,3 +45,7 @@ next-env.d.ts
 
 # local stock data (dev only — R2 in production)
 /data
+
+# Local photos destined for Cloudflare R2 — NOT server data, never commit.
+# These are compressed + uploaded to R2 via scripts/uploadImagesToR2.ts
+/R2 Storage cloud. DO NOT PUSH AS SERVER DATA. it's for cloud storage/

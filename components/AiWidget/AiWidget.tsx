@@ -160,7 +160,7 @@ export default function AiWidget() {
         ...prev,
         { role: "assistant", content: assistantContent },
       ]);
-    } catch (error) {
+    } catch {
       setMessages((prev) => [
         ...prev,
         {
@@ -406,6 +406,7 @@ export default function AiWidget() {
                 >
                   {msg.image && (
                     <div className="mb-2">
+                      {/* eslint-disable-next-line @next/next/no-img-element -- data URL from user upload/AI; next/image doesn't optimize data URLs */}
                       <img
                         src={msg.image}
                         alt="Uploaded"
@@ -439,6 +440,7 @@ export default function AiWidget() {
           {selectedImage && (
             <div className="px-4 py-2 bg-gray-100 border-t border-gray-200 flex items-center gap-2">
               <div className="relative">
+                {/* eslint-disable-next-line @next/next/no-img-element -- local data-URL thumbnail preview; next/image offers no benefit */}
                 <img
                   src={selectedImage}
                   alt="Preview"

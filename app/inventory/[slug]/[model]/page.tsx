@@ -49,31 +49,48 @@ export default async function ModelPage({
   const inStock = hasStockData && stock > 0;
 
   // Build description based on model type
-  const description = "outerLengthInch" in modelData
-    ? `三ツ星（Mitsuboshi）スタンダードVベルト ${modelData.code} の仕様詳細ページです。外周長さ ${modelData.outerLengthInch} インチ（${modelData.outerLengthMm} mm）、${modelData.type}形のVベルトです。JIS K6323 規格適合品。`
-    : "seriesSlug" in modelData
-    ? `フローバル（Floral）グリスニップル ${modelData.code} の仕様詳細ページです。材質：${modelData.material}、形状：${modelData.shape}、ねじ規格：${modelData.thread}。各種産業機械・自動車・建設機械の潤滑部に最適です。`
-    : `三ツ星（Mitsuboshi）狭角Vベルト ${modelData.code} の仕様詳細ページです。外周長さ ${modelData.outerLengthMm} mm、${modelData.type}形の狭角Vベルトです。RMAIP規格準拠品。`;
+  let description: string;
+  if ("outerLengthInch" in modelData) {
+    // Standard V-belt
+    description = `三ツ星（Mitsuboshi）スタンダードVベルト ${modelData.code} の仕様詳細ページです。外周長さ ${modelData.outerLengthInch} インチ（${modelData.outerLengthMm} mm）、${modelData.type}形のVベルトです。JIS K6323 規格適合品。`;
+  } else if ("nominalSize" in modelData) {
+    // SGP welding cap
+    const finishDesc = modelData.finish === "黒" ? "黒（素地）" : "白（溶融亜鉛メッキ）";
+    description = `FKK製 SGP突合溶接キャップ ${modelData.code} の仕様詳細ページです。A呼称 ${modelData.nominalSize}（管外径 ${modelData.outerDiameterMm} mm）、仕上げ：${finishDesc}。JIS B 2311準拠、JIS G 3452 SGP鋼管用の突合せ溶接式管継手（キャップ）です。`;
+  } else if ("sizeNotation" in modelData) {
+    // BC ring joint
+    const typeDesc = modelData.type === "片口" ? "片口（片側Rねじ＋片側リング継手）" : "両口（両側リング継手）";
+    description = `フローバル（Floral）製 BCリング継手 ${modelData.code} の仕様詳細ページです。形状：${typeDesc}、サイズ表記：${modelData.sizeNotation}、銅管外径 ${modelData.pipeOuterDiameterMm} mm。C3604快削黄銅製、リング玉入りの圧縮式ユニオン継手です。最高使用圧力 3.5 MPa。`;
+  } else if ("shape" in modelData) {
+    // Grease nipple
+    description = `フローバル（Floral）グリスニップル ${modelData.code} の仕様詳細ページです。材質：${modelData.material}、形状：${modelData.shape}、ねじ規格：${modelData.thread}。各種産業機械・自動車・建設機械の潤滑部に最適です。`;
+  } else if ("catalogNumber" in modelData && "modelCode" in modelData && "thread" in modelData) {
+    // Relief nipple
+    description = `フローバル（Floral）製リリーフニップル ${modelData.code} の仕様詳細ページです。材質：黄銅メッキ付、ねじ規格：${modelData.thread}。内部リリーフ弁（設定圧力 0.8±0.4 kg）により過給圧を自動逃がしし、軸受・機械の潤滑系統の過圧を防ぎます。`;
+  } else {
+    // Wedge V-belt
+    description = `三ツ星（Mitsuboshi）狭角Vベルト ${modelData.code} の仕様詳細ページです。外周長さ ${modelData.outerLengthMm} mm、${modelData.type}形の狭角Vベルトです。RMAIP規格準拠品。`;
+  }
 
   return (
     <>
       {/* Breadcrumb */}
-      <div className="bg-white border-b">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <Link href="/" className="text-sm text-blue-700 hover:text-blue-500">
+          <Link href="/" className="text-sm text-blue-700 hover:text-blue-500 transition-colors">
             ホーム
           </Link>
           <span className="text-sm text-gray-400 mx-2">{">"}</span>
           <Link
             href="/inventory"
-            className="text-sm text-blue-700 hover:text-blue-500"
+            className="text-sm text-blue-700 hover:text-blue-500 transition-colors"
           >
             商品在庫案内
           </Link>
           <span className="text-sm text-gray-400 mx-2">{">"}</span>
           <Link
             href={`/inventory/${slug}`}
-            className="text-sm text-blue-700 hover:text-blue-500"
+            className="text-sm text-blue-700 hover:text-blue-500 transition-colors"
           >
             {product.name}
           </Link>
@@ -83,17 +100,18 @@ export default async function ModelPage({
       </div>
 
       {/* Model Detail */}
-      <section className="py-16">
+      <section className="py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
             {/* Header */}
             <div className="mb-8">
-              <span className="inline-block bg-blue-100 text-blue-800 text-sm font-semibold px-3 py-1 rounded-full mb-4">
+              <span className="inline-block bg-blue-50 text-blue-800 text-sm font-semibold px-4 py-1.5 rounded-full mb-4 border border-blue-100">
                 {product.maker} — {product.series}
               </span>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+              <h1 className="font-mincho text-3xl md:text-4xl font-semibold text-gray-900 mb-2 tracking-tight">
                 {modelData.code}
               </h1>
+              <div className="w-10 h-px bg-blue-200 mb-4" />
               <p className="text-lg text-gray-500 mb-2">
                 {product.name}
               </p>
@@ -128,9 +146,9 @@ export default async function ModelPage({
             </div>
 
             {/* Specifications */}
-            <div className="bg-white rounded-xl shadow-md overflow-hidden mb-8">
-              <div className="bg-blue-700 px-6 py-4">
-                <h2 className="text-lg font-bold text-white">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+              <div className="bg-gradient-to-r from-blue-900 to-blue-800 px-6 py-4">
+                <h2 className="font-mincho text-lg font-semibold text-white tracking-tight">
                   {modelData.code} 仕様詳細
                 </h2>
               </div>
@@ -156,16 +174,17 @@ export default async function ModelPage({
             </div>
 
             {/* CTA */}
-            <div className="bg-blue-50 rounded-xl p-8 text-center">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
+            <div className="bg-gradient-to-br from-blue-50 to-slate-50 rounded-2xl p-8 text-center border border-blue-100/60">
+              <h3 className="section-heading text-xl text-gray-900 mb-4">
                 {modelData.code} についてのお問い合わせ
               </h3>
+              <div className="w-10 h-px bg-blue-200 mx-auto mb-4" />
               <p className="text-gray-600 mb-6">
                 在庫確認や見積もりなど、お気軽にお問い合わせください。
               </p>
               <Link
                 href={`/inquiry?model=${modelData.code}`}
-                className="inline-block bg-blue-900 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-800 transition-colors duration-200"
+                className="inline-block bg-blue-900 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-800 transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
               >
                 お問い合わせ
               </Link>
@@ -175,13 +194,13 @@ export default async function ModelPage({
             <div className="mt-8 text-center space-x-4">
               <Link
                 href={`/inventory/${slug}`}
-                className="text-blue-700 hover:text-blue-500 font-medium"
+                className="text-blue-700 hover:text-blue-500 font-medium transition-colors"
               >
                 ← {product.name} に戻る
               </Link>
               <Link
                 href="/inventory"
-                className="text-blue-700 hover:text-blue-500 font-medium"
+                className="text-blue-700 hover:text-blue-500 font-medium transition-colors"
               >
                 ← 商品在庫案内に戻る
               </Link>

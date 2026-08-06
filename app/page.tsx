@@ -4,25 +4,35 @@ export default function Home() {
   return (
     <>
       {/* ===== HERO SECTION ===== */}
-      <section className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
+      <section
+        className="relative bg-cover bg-center text-white"
+        style={{ backgroundImage: "url('/api/files/uploads/company_building.webp')" }}
+      >
+        {/* Premium left-to-right scrim for text legibility without dimming the building */}
+        <div
+          className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/10"
+          aria-hidden="true"
+        />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 items-center">
             {/* Left side — existing hero content (60%) */}
             <div className="lg:col-span-3">
-              <p className="text-blue-300 font-semibold tracking-wide text-sm md:text-base mb-4">
+              <p className="text-white/80 font-semibold tracking-[0.2em] uppercase text-xs md:text-sm mb-5 drop-shadow-sm">
                 産業資材・設備機器のトータルサプライヤー
               </p>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+              <h1
+                className="font-mincho text-4xl md:text-5xl lg:text-6xl font-semibold mb-6 leading-[1.25] tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]"
+              >
                 必要な製品を、
                 <br />
-                <span className="text-blue-200">最適な形でご提供します。</span>
+                <span className="text-white/90">最適な形でご提供します。</span>
               </h1>
-              <p className="text-lg md:text-xl text-blue-200 mb-10 leading-relaxed">
+              <p className="text-lg md:text-xl text-white/85 mb-10 leading-relaxed drop-shadow-sm">
                 型番不明・廃番品・初めてのお取引——どんな条件でも構いません。
                 お客様からいただいた情報をもとに、最適な製品のマッチング、
                 代替品のご提案、在庫確認までワンストップで対応いたします。
                 <br />
-                <span className="text-blue-300 text-base">愛媛県内のお客様を迅速にサポートいたします。</span>
+                <span className="text-white/70 text-base">愛媛県内のお客様を迅速にサポートいたします。</span>
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link
@@ -33,7 +43,7 @@ export default function Home() {
                 </Link>
                 <Link
                   href="/inventory"
-                  className="inline-block border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors duration-200"
+                  className="inline-block border-2 border-white/80 text-white px-8 py-3 rounded-lg font-semibold hover:bg-white/15 transition-colors duration-200 backdrop-blur-sm"
                 >
                   在庫商品を確認する
                 </Link>
@@ -44,18 +54,18 @@ export default function Home() {
             <div className="lg:col-span-2">
               <Link
                 href="/exhibition"
-                className="block bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-8 hover:bg-white/20 transition-all duration-300 group"
+                className="block bg-white/10 backdrop-blur-md border border-white/25 rounded-2xl p-8 hover:bg-white/20 transition-all duration-300 group shadow-[0_8px_32px_rgba(0,0,0,0.25)]"
               >
                 <div className="flex items-center gap-2 mb-3">
                   <span className="bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full">
                     展示会
                   </span>
                 </div>
-                <h2 className="text-2xl md:text-3xl font-bold mb-1">
+                <h2 className="font-mincho text-2xl md:text-3xl font-semibold mb-1 tracking-tight">
                   テクノメッセ
                 </h2>
-                <p className="text-blue-200 text-sm mb-4">TECHNOMESSE</p>
-                <p className="text-blue-100 text-sm leading-relaxed mb-6">
+                <p className="text-white/60 text-sm mb-4 tracking-[0.2em]">TECHNOMESSE</p>
+                <p className="text-white/85 text-sm leading-relaxed mb-6">
                   最新の産業技術・製品が一堂に集う展示会。
                   実際に製品に触れ、専門スタッフが直接ご説明いたします。
                 </p>
@@ -74,17 +84,21 @@ export default function Home() {
       {/* ===== HOW IT WORKS ===== */}
       <section className="py-20 md:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">
-            たったの4ステップ
-          </h2>
-          <p className="text-gray-500 text-center max-w-2xl mx-auto mb-16">
-              お客様に必要なのは「アイテムの情報をお伝えいただく」ことだけ。
-              専門スタッフが最適な製品を調査・提案いたします。
-          </p>
+          <div className="text-center mb-16">
+            <p className="eyebrow text-blue-700 mb-4">PROCESS</p>
+            <h2 className="section-heading text-3xl md:text-4xl text-gray-900 mb-4">
+              たったの4ステップ
+            </h2>
+            <div className="accent-rule mx-auto mb-6" />
+            <p className="text-gray-500 max-w-2xl mx-auto leading-relaxed">
+                お客様に必要なのは「アイテムの情報をお伝えいただく」ことだけ。
+                専門スタッフが最適な製品を調査・提案いたします。
+            </p>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
             {/* Connecting line (desktop) */}
-            <div className="hidden md:block absolute top-12 left-[12.5%] right-[12.5%] h-0.5 bg-blue-200" />
+            <div className="hidden md:block absolute top-12 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-blue-200 via-blue-300 to-blue-200" />
 
             {[
               {
@@ -131,17 +145,17 @@ export default function Home() {
                   </svg>
                 ),
               },
-            ].map((item, i) => (
+            ].map((item) => (
               <div key={item.step} className="relative">
                 {/* Step number badge */}
-                <div className="w-24 h-24 mx-auto mb-6 rounded-2xl bg-blue-900 text-white flex items-center justify-center relative z-10 shadow-lg">
+                <div className="w-24 h-24 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-blue-900 to-blue-800 text-white flex items-center justify-center relative z-10 shadow-lg shadow-blue-900/20 ring-1 ring-white/10">
                   {item.icon}
                 </div>
                 {/* Step label */}
-                <p className="text-center text-sm font-bold text-blue-700 mb-2">
+                <p className="text-center text-xs font-semibold text-blue-700 mb-2 tracking-[0.2em]">
                   STEP {item.step}
                 </p>
-                <h3 className="text-center text-lg font-bold text-gray-900 mb-3 whitespace-pre-line leading-snug">
+                <h3 className="section-heading text-center text-lg text-gray-900 mb-3 whitespace-pre-line leading-snug">
                   {item.title}
                 </h3>
                 <p className="text-center text-gray-500 text-sm leading-relaxed">
@@ -156,13 +170,17 @@ export default function Home() {
       {/* ===== CATEGORIES SECTION ===== */}
       <section className="bg-gray-50 py-20 md:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">
-            あらゆるアイテムに対応
-          </h2>
-          <p className="text-gray-500 text-center max-w-2xl mx-auto mb-16">
-            製造業から建設・プラントまで、幅広い分野の産業資材・設備機器をカバー。
-            お客様の「探しているけど見つからない」を解決します。
-          </p>
+          <div className="text-center mb-16">
+            <p className="eyebrow text-blue-700 mb-4">CATEGORIES</p>
+            <h2 className="section-heading text-3xl md:text-4xl text-gray-900 mb-4">
+              あらゆるアイテムに対応
+            </h2>
+            <div className="accent-rule mx-auto mb-6" />
+            <p className="text-gray-500 max-w-2xl mx-auto leading-relaxed">
+              製造業から建設・プラントまで、幅広い分野の産業資材・設備機器をカバー。
+              お客様の「探しているけど見つからない」を解決します。
+            </p>
+          </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
@@ -210,9 +228,9 @@ export default function Home() {
               <Link
                 key={cat.label}
                 href={cat.href}
-                className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 hover:border-blue-200 group"
+                className="bg-white rounded-xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 hover:border-blue-200 group"
               >
-                <h3 className="font-bold text-gray-900 mb-2 group-hover:text-blue-800 transition-colors">
+                <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-blue-800 transition-colors">
                   {cat.label}
                 </h3>
                 <p className="text-xs text-gray-400 leading-relaxed">
@@ -239,15 +257,19 @@ export default function Home() {
       {/* ===== WHY CHOOSE US ===== */}
       <section className="py-20 md:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">
-            サトー産業が選ばれる理由
-          </h2>
-          <p className="text-gray-500 text-center max-w-2xl mx-auto mb-16">
-              単なる製品販売ではなく、「探す」から「届ける」までを一貫して代行。
-              お客様の負担を徹底的に削減します。
-              <br />
-              <span className="text-gray-400 text-sm">所在地：愛媛県四国中央市</span>
-          </p>
+          <div className="text-center mb-16">
+            <p className="eyebrow text-blue-700 mb-4">OUR STRENGTHS</p>
+            <h2 className="section-heading text-3xl md:text-4xl text-gray-900 mb-4">
+              サトー産業が選ばれる理由
+            </h2>
+            <div className="accent-rule mx-auto mb-6" />
+            <p className="text-gray-500 max-w-2xl mx-auto leading-relaxed">
+                単なる製品販売ではなく、「探す」から「届ける」までを一貫して代行。
+                お客様の負担を徹底的に削減します。
+                <br />
+                <span className="text-gray-400 text-sm">所在地：愛媛県四国中央市</span>
+            </p>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
@@ -279,14 +301,14 @@ export default function Home() {
               <Link
                 key={item.title}
                 href={item.href}
-                className="bg-white rounded-xl shadow-md p-8 hover:shadow-lg transition-all duration-200 group border border-gray-100 hover:border-blue-200"
+                className="bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-8 group border border-gray-100 hover:border-blue-200"
               >
                 {/* Stat highlight */}
-                <div className="mb-6">
-                  <span className="text-3xl font-bold text-blue-900">{item.stat}</span>
+                <div className="mb-6 pb-6 border-b border-gray-100">
+                  <span className="font-mincho text-4xl font-semibold text-blue-900 tracking-tight">{item.stat}</span>
                   <span className="text-sm text-gray-400 ml-2">{item.statLabel}</span>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4 group-hover:text-blue-800 transition-colors whitespace-pre-line leading-snug">
+                <h3 className="section-heading text-xl text-gray-900 mb-4 group-hover:text-blue-800 transition-colors whitespace-pre-line leading-snug">
                   {item.title}
                 </h3>
                 <p className="text-gray-600 leading-relaxed text-sm">
@@ -301,21 +323,25 @@ export default function Home() {
       {/* ===== USE CASE / FLOW VISUAL ===== */}
       <section className="bg-gray-50 py-20 md:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">
-            実際のご依頼例
-          </h2>
-          <p className="text-gray-500 text-center max-w-2xl mx-auto mb-16">
-            このようなアイテムのご依頼をいただき、解決してきました。
-          </p>
+          <div className="text-center mb-16">
+            <p className="eyebrow text-blue-700 mb-4">CASE STUDIES</p>
+            <h2 className="section-heading text-3xl md:text-4xl text-gray-900 mb-4">
+              実際のご依頼例
+            </h2>
+            <div className="accent-rule mx-auto mb-6" />
+            <p className="text-gray-500 max-w-2xl mx-auto leading-relaxed">
+              このようなアイテムのご依頼をいただき、解決してきました。
+            </p>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Case 1 */}
-            <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
+            <div className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-lg transition-shadow duration-300 border border-gray-100">
               <div className="flex items-center gap-2 mb-4">
-                <span className="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">機械部品</span>
-                <span className="bg-orange-100 text-orange-800 text-xs font-bold px-3 py-1 rounded-full">廃番品</span>
+                <span className="bg-blue-50 text-blue-800 text-xs font-semibold px-3 py-1 rounded-full">機械部品</span>
+                <span className="bg-orange-50 text-orange-800 text-xs font-semibold px-3 py-1 rounded-full">廃番品</span>
               </div>
-              <h3 className="font-bold text-gray-900 mb-3">
+              <h3 className="section-heading text-lg text-gray-900 mb-4">
                 生産終了のモーター代替品を調査
               </h3>
               <div className="bg-gray-50 rounded-lg p-4 mb-4 text-sm">
@@ -329,12 +355,12 @@ export default function Home() {
             </div>
 
             {/* Case 2 */}
-            <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
+            <div className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-lg transition-shadow duration-300 border border-gray-100">
               <div className="flex items-center gap-2 mb-4">
-                <span className="bg-purple-100 text-purple-800 text-xs font-bold px-3 py-1 rounded-full">安全用品</span>
-                <span className="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full">コスト削減</span>
+                <span className="bg-purple-50 text-purple-800 text-xs font-semibold px-3 py-1 rounded-full">安全用品</span>
+                <span className="bg-green-50 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">コスト削減</span>
               </div>
-              <h3 className="font-bold text-gray-900 mb-3">
+              <h3 className="section-heading text-lg text-gray-900 mb-4">
                 作業用手袋のコスト削減と品質維持
               </h3>
               <div className="bg-gray-50 rounded-lg p-4 mb-4 text-sm">
@@ -348,12 +374,12 @@ export default function Home() {
             </div>
 
             {/* Case 3 */}
-            <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
+            <div className="bg-white rounded-2xl p-8 shadow-sm hover:shadow-lg transition-shadow duration-300 border border-gray-100">
               <div className="flex items-center gap-2 mb-4">
-                <span className="bg-teal-100 text-teal-800 text-xs font-bold px-3 py-1 rounded-full">制御機器</span>
-                <span className="bg-red-100 text-red-800 text-xs font-bold px-3 py-1 rounded-full">緊急対応</span>
+                <span className="bg-teal-50 text-teal-800 text-xs font-semibold px-3 py-1 rounded-full">制御機器</span>
+                <span className="bg-red-50 text-red-800 text-xs font-semibold px-3 py-1 rounded-full">緊急対応</span>
               </div>
-              <h3 className="font-bold text-gray-900 mb-3">
+              <h3 className="section-heading text-lg text-gray-900 mb-4">
                 ライン停止！至急センサーを手配
               </h3>
               <div className="bg-gray-50 rounded-lg p-4 mb-4 text-sm">
@@ -370,27 +396,34 @@ export default function Home() {
       </section>
 
       {/* ===== CTA SECTION ===== */}
-      <section className="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-6">
+      <section className="relative bg-blue-950 py-20 md:py-24 overflow-hidden">
+        {/* Subtle decorative gradient */}
+        <div
+          className="absolute inset-0 bg-gradient-to-br from-blue-900/40 via-transparent to-blue-800/30"
+          aria-hidden="true"
+        />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="eyebrow text-blue-300 mb-5">CONTACT</p>
+          <h2 className="section-heading text-3xl md:text-4xl text-white mb-6">
             まずはお気軽にご相談ください
           </h2>
-          <p className="text-blue-200 mb-10 max-w-2xl mx-auto leading-relaxed">
+          <div className="accent-rule mx-auto mb-6" />
+          <p className="text-blue-200/90 mb-10 max-w-2xl mx-auto leading-relaxed">
               アイテム1点からのご依頼も承ります。情報が少なくても構いません。
               経験豊富なスタッフが最適なソリューションをご提案いたします。
               <br />
-              <span className="text-blue-300 text-base">愛媛県内のお客様からのお問い合わせを歓迎いたします。</span>
+              <span className="text-blue-300/80 text-base">愛媛県内のお客様からのお問い合わせを歓迎いたします。</span>
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               href="/inquiry"
-              className="inline-block bg-white text-blue-900 px-10 py-4 rounded-lg font-semibold hover:bg-blue-50 transition-colors duration-200 shadow-lg"
+              className="inline-block bg-white text-blue-900 px-10 py-4 rounded-lg font-semibold hover:bg-blue-50 transition-all duration-200 shadow-xl hover:shadow-2xl hover:-translate-y-0.5"
             >
               アイテムを依頼する
             </Link>
             <Link
               href="/company"
-              className="inline-block border-2 border-white text-white px-10 py-4 rounded-lg font-semibold hover:bg-white/10 transition-colors duration-200"
+              className="inline-block border-2 border-white/30 text-white px-10 py-4 rounded-lg font-semibold hover:bg-white/10 hover:border-white/50 transition-all duration-200"
             >
               会社概要を見る
             </Link>

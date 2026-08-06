@@ -16,10 +16,31 @@ import {
   greaseNippleThreadDescriptions,
   type GreaseNippleModel,
 } from "./greaseNippleModelsData";
+import {
+  reliefNippleModelData,
+  reliefNippleSeries,
+  reliefNippleThreadDescriptions,
+  type ReliefNippleModel,
+} from "./reliefNippleModelsData";
+import {
+  ringJointModelData,
+  ringJointSeries,
+  type RingJointModel,
+} from "./ringJointModelsData";
+import {
+  weldingCapModelData,
+  weldingCapSeries,
+  type WeldingCapModel,
+} from "./weldingCapModelsData";
 
 // Unified belt model type for all belt varieties (V-belt, wedge belt, etc.)
 export type BeltModel = VBeltModel | WedgeBeltModel;
-export type AnyModel = BeltModel | GreaseNippleModel;
+export type AnyModel =
+  | BeltModel
+  | GreaseNippleModel
+  | ReliefNippleModel
+  | RingJointModel
+  | WeldingCapModel;
 
 export type Spec = { label: string; value: string };
 
@@ -87,7 +108,7 @@ const inventoryDataRaw: ListingCategory[] = [
     subCategories: [
       {
         subCategory: "潤滑継手",
-        description: "グリスニップル・潤滑継手関連部品",
+        description: "グリスニップル・リリーフニップル・潤滑継手関連部品",
         productTypes: [
           {
             productType: "グリスニップル",
@@ -100,6 +121,69 @@ const inventoryDataRaw: ListingCategory[] = [
                   "フローバル製グリスニップル。ステンレス（SUS303）、黄銅生地、黄銅メッキ付の3種類の材質を取り揃え。PTねじ、Mねじ、UNFねじ対応。",
                 series: greaseNippleSeries.map((s) => ({
                   name: `フローバル グリスニップル ${s.name}`,
+                  slug: s.slug,
+                  series: s.name,
+                })),
+              },
+            ],
+          },
+          {
+            productType: "リリーフニップル",
+            description:
+              "リリーフニップル（ relief nipple ）は、グリスニップルの一方で過給圧を自動逃がしする安全機構付きの給脂継手です。軸受・機械の潤滑系統で過圧を防ぎ、適切な給脂量を維持します。黄銅メッキ付材質、PTねじ対応。",
+            brands: [
+              {
+                brand: "フローバル（Floral）",
+                description:
+                  "フローバル製リリーフニップル。内部リリーフ弁（設定圧力 0.8±0.4 kg）により過給圧を自動逃がし。黄銅メッキ付材質、PT1/8・PT1/4・PT3/8ねじ対応。",
+                series: reliefNippleSeries.map((s) => ({
+                  name: `フローバル ${s.name}`,
+                  slug: s.slug,
+                  series: s.name,
+                })),
+              },
+            ],
+          },
+        ],
+      },
+      {
+        subCategory: "配管継手",
+        description: "SGP鋼管用突合せ溶接式管継手（キャップ等）",
+        productTypes: [
+          {
+            productType: "突合溶接キャップ",
+            description:
+              "突合せ溶接式管継手のキャップは、SGP配管の末端を密閉する溶接式継手です。JIS B 2311（一般配管用鋼製突合せ溶接式管継手）準拠、母材は JIS G 3452 SGP 鋼管。黒（素地）と白（溶融亜鉛メッキ）の2種類を取り揃え、15A～300Aの豊富なサイズ展開。",
+            brands: [
+              {
+                brand: "FKK",
+                description:
+                  "FKK製 SGP突合せ溶接キャップ。黒（素地・SGPC）と白（溶融亜鉛メッキ・SGPWC）の2仕様。15A～300A、JIS B 2311準拠。",
+                series: weldingCapSeries.map((s) => ({
+                  name: `FKK ${s.name}`,
+                  slug: s.slug,
+                  series: s.name,
+                })),
+              },
+            ],
+          },
+        ],
+      },
+      {
+        subCategory: "銅管継手",
+        description: "銅管用リング継手（BC形・圧縮式ユニオン）",
+        productTypes: [
+          {
+            productType: "BCリング継手",
+            description:
+              "BCリング継手は、銅管・ステンレス管・黄銅管用の圧縮式ユニオン継手です。ナット締めで内部のリング（玉）が管に食い込んで密封され、溶接不要で着脱可能。本体・リング・ナットは快削黄銅 C3604。最高使用圧力 3.5 MPa、使用温度 -20℃～150℃。片口（RUO・片側Rねじ＋片側リング継手）と両口（RUW・両側リング継手）の2種類。",
+            brands: [
+              {
+                brand: "フローバル（Floral）",
+                description:
+                  "フローバル製 BCリング継手。C3604快削黄銅製、リング玉入り。片口（RUO）は片側Rねじ＋片側リング継手、両口（RUW）は両側リング継手。1/8～1/2ねじ、φ6～φ12.7銅管対応。",
+                series: ringJointSeries.map((s) => ({
+                  name: `フローバル ${s.name}`,
                   slug: s.slug,
                   series: s.name,
                 })),
@@ -292,9 +376,6 @@ for (let i = 19; i <= 100; i++) vBeltModelsA.push(`A${i}`);
 const vBeltModelsB: string[] = [];
 for (let i = 19; i <= 102; i++) vBeltModelsB.push(`B${i}`);
 
-// All V-belt model codes (for the [model] dynamic route)
-const vBeltModels: string[] = [...vBeltModelsA, ...vBeltModelsB];
-
 // ── Wedge belt model codes (from wedgeBeltModelData) ──────────
 const wedgeBeltModels3V: string[] = wedgeBeltModelData
   .filter((m) => m.type === "3V")
@@ -423,6 +504,106 @@ const detailedProducts: Record<string, Product> = {
             { label: "材質", value: s.material },
             { label: "形状", value: `${s.shape}（${shapeDesc}）` },
             { label: "対応ねじ", value: "PT・M・UNF" },
+            { label: "単位", value: "ヶ" },
+          ],
+        } satisfies Product,
+      ];
+    })
+  ),
+
+  // ── フローバル リリーフニップル (Floral relief nipples) ──────
+  // Auto-generated from reliefNippleSeries + reliefNippleModelData
+  ...Object.fromEntries(
+    reliefNippleSeries.map((s) => {
+      const models = reliefNippleModelData
+        .filter((m) => m.seriesSlug === s.slug)
+        .map((m) => m.urlCode);
+      return [
+        s.slug,
+        {
+          slug: s.slug,
+          name: `フローバル ${s.name}`,
+          category: "潤滑継手",
+          maker: "フローバル（Floral）",
+          series: s.name,
+          description: `フローバル（Floral）製リリーフニップル ${s.name}（材質：${s.material}）。内部リリーフ弁（設定圧力 0.8±0.4 kg）により過給圧を自動逃がしし、軸受・機械の潤滑系統の過圧を防ぎます。PT1/8・PT1/4・PT3/8ねじ対応。`,
+          models,
+          specifications: [
+            { label: "メーカー", value: "フローバル（Floral）" },
+            { label: "商品種類", value: "リリーフニップル" },
+            { label: "材質", value: s.material },
+            { label: "リリーフ圧力", value: "0.8 ± 0.4 kg（0.4～1.2 kg）" },
+            { label: "対応ねじ", value: "PT1/8・PT1/4・PT3/8" },
+            { label: "単位", value: "ヶ" },
+          ],
+        } satisfies Product,
+      ];
+    })
+  ),
+
+  // ── フローバル BCリング継手 (Floral BC ring joints) ──────
+  // Auto-generated from ringJointSeries + ringJointModelData
+  ...Object.fromEntries(
+    ringJointSeries.map((s) => {
+      const models = ringJointModelData
+        .filter((m) => m.seriesSlug === s.slug)
+        .map((m) => m.urlCode);
+      const typeDesc = s.type === "片口"
+        ? "片側Rねじ＋片側リング継手（RUO）"
+        : "両側リング継手（RUW）";
+      return [
+        s.slug,
+        {
+          slug: s.slug,
+          name: `フローバル ${s.name}`,
+          category: "銅管継手",
+          maker: "フローバル（Floral）",
+          series: s.name,
+          description: `フローバル（Floral）製 ${s.name}。本体・リング・ナットは快削黄銅 C3604、リング玉入り。ナット締めで管に食い込んで密封される圧縮式ユニオン継手で、溶接不要・着脱可能。${typeDesc}。最高使用圧力 3.5 MPa、使用温度 -20℃～150℃。`,
+          models,
+          specifications: [
+            { label: "メーカー", value: "フローバル（Floral）" },
+            { label: "商品種類", value: "BCリング継手" },
+            { label: "形状", value: s.type },
+            { label: "材質", value: "C3604（快削黄銅）" },
+            { label: "最高使用圧力", value: "3.5 MPa" },
+            { label: "使用温度", value: "-20℃ ～ 150℃" },
+            { label: "適用流体", value: "水・油・空気" },
+            { label: "適合管", value: "硬質(H)・半硬質(1/2H)銅管、ステンレス管、黄銅管（肉厚0.8mm以上）" },
+            { label: "単位", value: "ヶ" },
+          ],
+        } satisfies Product,
+      ];
+    })
+  ),
+
+  // ── FKK SGP溶接キャップ (FKK SGP welding caps) ──────
+  // Auto-generated from weldingCapSeries + weldingCapModelData
+  ...Object.fromEntries(
+    weldingCapSeries.map((s) => {
+      const models = weldingCapModelData
+        .filter((m) => m.seriesSlug === s.slug)
+        .map((m) => m.urlCode);
+      const finishDesc = s.finish === "黒"
+        ? "黒（素地・無メッキ）"
+        : "白（溶融亜鉛メッキ・耐食性向上）";
+      return [
+        s.slug,
+        {
+          slug: s.slug,
+          name: `FKK ${s.name}`,
+          category: "配管継手",
+          maker: "FKK",
+          series: s.name,
+          description: `FKK製 ${s.name}。SGP一般配管用鋼管の末端を密閉する突合せ溶接式管継手（キャップ）。JIS B 2311準拠、母材 JIS G 3452 SGP鋼管。仕上げ：${finishDesc}。15A～300Aの豊富なサイズ展開。`,
+          models,
+          specifications: [
+            { label: "メーカー", value: "FKK" },
+            { label: "商品種類", value: "突合せ溶接式管継手（キャップ）" },
+            { label: "仕上げ", value: finishDesc },
+            { label: "規格", value: "JIS B 2311（一般配管用鋼製突合せ溶接式管継手）" },
+            { label: "母材", value: "JIS G 3452 SGP 鋼管" },
+            { label: "サイズ展開", value: "15A ～ 300A" },
             { label: "単位", value: "ヶ" },
           ],
         } satisfies Product,
@@ -579,6 +760,27 @@ function isGreaseNippleSlug(slug: string): boolean {
 }
 
 /**
+ * Check if a slug is a relief nipple series.
+ */
+function isReliefNippleSlug(slug: string): boolean {
+  return reliefNippleSeries.some((s) => s.slug === slug);
+}
+
+/**
+ * Check if a slug is a ring joint series.
+ */
+function isRingJointSlug(slug: string): boolean {
+  return ringJointSeries.some((s) => s.slug === slug);
+}
+
+/**
+ * Check if a slug is a welding cap series.
+ */
+function isWeldingCapSlug(slug: string): boolean {
+  return weldingCapSeries.some((s) => s.slug === slug);
+}
+
+/**
  * Get grease nipple model by URL code.
  */
 export function getGreaseNippleModelByCode(code: string): GreaseNippleModel | undefined {
@@ -587,10 +789,40 @@ export function getGreaseNippleModelByCode(code: string): GreaseNippleModel | un
 }
 
 /**
- * Get model data by code (unified — belts or grease nipples).
+ * Get relief nipple model by URL code.
+ */
+export function getReliefNippleModelByCode(code: string): ReliefNippleModel | undefined {
+  const lower = code.toLowerCase();
+  return reliefNippleModelData.find((m) => m.urlCode.toLowerCase() === lower);
+}
+
+/**
+ * Get ring joint model by URL code.
+ */
+export function getRingJointModelByCode(code: string): RingJointModel | undefined {
+  const lower = code.toLowerCase();
+  return ringJointModelData.find((m) => m.urlCode.toLowerCase() === lower);
+}
+
+/**
+ * Get welding cap model by URL code.
+ */
+export function getWeldingCapModelByCode(code: string): WeldingCapModel | undefined {
+  const lower = code.toLowerCase();
+  return weldingCapModelData.find((m) => m.urlCode.toLowerCase() === lower);
+}
+
+/**
+ * Get model data by code (unified — all product types).
  */
 export function getModelByCode(code: string): AnyModel | undefined {
-  return getVBeltModelByCode(code) ?? getGreaseNippleModelByCode(code);
+  return (
+    getVBeltModelByCode(code) ??
+    getGreaseNippleModelByCode(code) ??
+    getReliefNippleModelByCode(code) ??
+    getRingJointModelByCode(code) ??
+    getWeldingCapModelByCode(code)
+  );
 }
 
 /**
@@ -599,10 +831,25 @@ export function getModelByCode(code: string): AnyModel | undefined {
  * (e.g. SGNIBTN3_8 in both pin-type and button-head SUS303 series).
  */
 export function getModelByCodeForSlug(code: string, slug: string): AnyModel | undefined {
+  const lower = code.toLowerCase();
   // For grease nipples, filter by seriesSlug first
   if (isGreaseNippleSlug(slug)) {
-    const lower = code.toLowerCase();
     return greaseNippleModelData.find(
+      (m) => m.urlCode.toLowerCase() === lower && m.seriesSlug === slug
+    );
+  }
+  if (isReliefNippleSlug(slug)) {
+    return reliefNippleModelData.find(
+      (m) => m.urlCode.toLowerCase() === lower && m.seriesSlug === slug
+    );
+  }
+  if (isRingJointSlug(slug)) {
+    return ringJointModelData.find(
+      (m) => m.urlCode.toLowerCase() === lower && m.seriesSlug === slug
+    );
+  }
+  if (isWeldingCapSlug(slug)) {
+    return weldingCapModelData.find(
       (m) => m.urlCode.toLowerCase() === lower && m.seriesSlug === slug
     );
   }
@@ -612,11 +859,25 @@ export function getModelByCodeForSlug(code: string, slug: string): AnyModel | un
 
 /**
  * Get model codes for a specific product slug (unified).
- * Returns belt codes for belt slugs, grease nipple urlCodes for grease nipple slugs.
  */
 export function getModelCodesForSlug(slug: string): string[] {
   if (isGreaseNippleSlug(slug)) {
     return greaseNippleModelData
+      .filter((m) => m.seriesSlug === slug)
+      .map((m) => m.urlCode);
+  }
+  if (isReliefNippleSlug(slug)) {
+    return reliefNippleModelData
+      .filter((m) => m.seriesSlug === slug)
+      .map((m) => m.urlCode);
+  }
+  if (isRingJointSlug(slug)) {
+    return ringJointModelData
+      .filter((m) => m.seriesSlug === slug)
+      .map((m) => m.urlCode);
+  }
+  if (isWeldingCapSlug(slug)) {
+    return weldingCapModelData
       .filter((m) => m.seriesSlug === slug)
       .map((m) => m.urlCode);
   }
@@ -627,7 +888,13 @@ export function getModelCodesForSlug(slug: string): string[] {
  * Get all slugs that have model detail pages (unified).
  */
 export function getProductSlugsWithModels(): string[] {
-  return [...getVBeltProductSlugs(), ...greaseNippleSeries.map((s) => s.slug)];
+  return [
+    ...getVBeltProductSlugs(),
+    ...greaseNippleSeries.map((s) => s.slug),
+    ...reliefNippleSeries.map((s) => s.slug),
+    ...ringJointSeries.map((s) => s.slug),
+    ...weldingCapSeries.map((s) => s.slug),
+  ];
 }
 
 /**
@@ -654,17 +921,93 @@ function getGreaseNippleSpecs(gn: GreaseNippleModel): Spec[] {
 }
 
 /**
+ * Build specifications for a specific relief nipple model.
+ */
+function getReliefNippleSpecs(rn: ReliefNippleModel): Spec[] {
+  const threadDesc = reliefNippleThreadDescriptions[rn.thread] ?? rn.thread;
+  return [
+    { label: "メーカー", value: "フローバル（Floral）" },
+    { label: "商品番号", value: rn.code },
+    { label: "商品種類", value: "リリーフニップル" },
+    { label: "材質", value: "黄銅メッキ付" },
+    { label: "ねじ規格", value: threadDesc },
+    { label: "リリーフ圧力", value: "0.8 ± 0.4 kg（0.4～1.2 kg）" },
+    { label: "カタログ番号", value: rn.catalogNumber },
+    { label: "型番", value: rn.modelCode },
+    { label: "単位", value: rn.unit },
+  ];
+}
+
+/**
+ * Build specifications for a specific ring joint model.
+ */
+function getRingJointSpecs(rj: RingJointModel): Spec[] {
+  const typeDesc = rj.type === "片口"
+    ? "片口（片側Rねじ＋片側リング継手 / RUO）"
+    : "両口（両側リング継手 / RUW）";
+  const specs: Spec[] = [
+    { label: "メーカー", value: "フローバル（Floral）" },
+    { label: "商品番号", value: rj.code },
+    { label: "商品種類", value: "BCリング継手" },
+    { label: "形状", value: typeDesc },
+    { label: "サイズ表記", value: rj.sizeNotation },
+    { label: "ねじ寸法", value: `G${rj.threadSize}` },
+    { label: "銅管外径", value: `${rj.pipeOuterDiameterMm} mm` },
+    { label: "材質", value: "C3604（快削黄銅）" },
+    { label: "最高使用圧力", value: "3.5 MPa" },
+    { label: "使用温度", value: "-20℃ ～ 150℃" },
+    { label: "適用流体", value: "水・油・空気" },
+    { label: "カタログ番号", value: rj.catalogNumber },
+    { label: "型番", value: rj.modelCode },
+  ];
+  if (rj.extraSpec) {
+    specs.push({ label: "備考", value: rj.extraSpec });
+  }
+  specs.push({ label: "単位", value: rj.unit });
+  return specs;
+}
+
+/**
+ * Build specifications for a specific welding cap model.
+ */
+function getWeldingCapSpecs(wc: WeldingCapModel): Spec[] {
+  const finishDesc = wc.finish === "黒"
+    ? "黒（素地・無メッキ）"
+    : "白（溶融亜鉛メッキ・耐食性向上）";
+  return [
+    { label: "メーカー", value: "FKK" },
+    { label: "商品番号", value: wc.code },
+    { label: "商品種類", value: "突合せ溶接式管継手（キャップ）" },
+    { label: "仕上げ", value: finishDesc },
+    { label: "A呼称", value: wc.nominalSize },
+    { label: "呼び径（インチ）", value: wc.inchNotation },
+    { label: "管外径", value: `${wc.outerDiameterMm} mm` },
+    { label: "規格", value: "JIS B 2311（一般配管用鋼製突合せ溶接式管継手）" },
+    { label: "母材", value: "JIS G 3452 SGP 鋼管" },
+    { label: "単位", value: wc.unit },
+  ];
+}
+
+/**
  * Build specifications for a specific model (unified).
- * Handles V-belts, wedge belts, and grease nipples.
- * Note: For grease nipples with duplicate urlCodes across series,
+ * Handles V-belts, wedge belts, grease nipples, relief nipples,
+ * ring joints, and welding caps.
+ * Note: For series with duplicate urlCodes across series,
  * use getModelSpecsForSlug instead.
  */
 export function getModelSpecs(code: string): Spec[] | undefined {
-  // Try grease nipple first (urlCode), then belts
+  // Try grease nipple first (urlCode), then new product types, then belts
   const gn = getGreaseNippleModelByCode(code);
-  if (gn) {
-    return getGreaseNippleSpecs(gn);
-  }
+  if (gn) return getGreaseNippleSpecs(gn);
+
+  const rn = getReliefNippleModelByCode(code);
+  if (rn) return getReliefNippleSpecs(rn);
+
+  const rj = getRingJointModelByCode(code);
+  if (rj) return getRingJointSpecs(rj);
+
+  const wc = getWeldingCapModelByCode(code);
+  if (wc) return getWeldingCapSpecs(wc);
 
   return getVBeltModelSpecs(code);
 }
@@ -674,14 +1017,33 @@ export function getModelSpecs(code: string): Spec[] | undefined {
  * This handles cases where the same urlCode appears in multiple series.
  */
 export function getModelSpecsForSlug(code: string, slug: string): Spec[] | undefined {
+  const lower = code.toLowerCase();
   if (isGreaseNippleSlug(slug)) {
-    const lower = code.toLowerCase();
     const gn = greaseNippleModelData.find(
       (m) => m.urlCode.toLowerCase() === lower && m.seriesSlug === slug
     );
-    if (gn) {
-      return getGreaseNippleSpecs(gn);
-    }
+    if (gn) return getGreaseNippleSpecs(gn);
+    return undefined;
+  }
+  if (isReliefNippleSlug(slug)) {
+    const rn = reliefNippleModelData.find(
+      (m) => m.urlCode.toLowerCase() === lower && m.seriesSlug === slug
+    );
+    if (rn) return getReliefNippleSpecs(rn);
+    return undefined;
+  }
+  if (isRingJointSlug(slug)) {
+    const rj = ringJointModelData.find(
+      (m) => m.urlCode.toLowerCase() === lower && m.seriesSlug === slug
+    );
+    if (rj) return getRingJointSpecs(rj);
+    return undefined;
+  }
+  if (isWeldingCapSlug(slug)) {
+    const wc = weldingCapModelData.find(
+      (m) => m.urlCode.toLowerCase() === lower && m.seriesSlug === slug
+    );
+    if (wc) return getWeldingCapSpecs(wc);
     return undefined;
   }
   return getVBeltModelSpecs(code);

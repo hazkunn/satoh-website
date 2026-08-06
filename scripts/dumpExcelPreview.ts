@@ -26,8 +26,8 @@ async function main() {
         const v = row.getCell(c).value;
         let s = "";
         if (v === null || v === undefined) s = "";
-        else if (typeof v === "object" && "text" in v) s = String((v as any).text);
-        else if (typeof v === "object" && "result" in v) s = String((v as any).result);
+        else if (typeof v === "object" && "text" in v) s = String((v as { text: string }).text);
+        else if (typeof v === "object" && "result" in v) s = String((v as { result: unknown }).result);
         else s = String(v);
         // truncate
         if (s.length > 25) s = s.slice(0, 25) + "…";
