@@ -49,3 +49,10 @@ next-env.d.ts
 # Local photos destined for Cloudflare R2 — NOT server data, never commit.
 # These are compressed + uploaded to R2 via scripts/uploadImagesToR2.ts
 /R2 Storage cloud. DO NOT PUSH AS SERVER DATA. it's for cloud storage/
+
+# Local dev/diagnostic artifacts (never commit)
+/logs.json
+/logs.txt
+/tsc.txt
+/scripts/sample-compressed.webp
+/scripts/sample-original.jpg
