@@ -1,8 +1,12 @@
 import { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { FetchHttpHandler } from "@smithy/fetch-http-handler";
 
-// R2 is S3-compatible, so we use the S3 client configured for Cloudflare R2
+// R2 is S3-compatible. Configuration follows Cloudflare's official
+// aws-sdk-js-v3 guide: https://developers.cloudflare.com/r2/examples/aws-sdk-js-v3/
+// We intentionally do NOT set forcePathStyle or a custom requestHandler.
+// (Forcing path-style + a custom handler previously caused "fetch failed"
+// and "SSL alert number 40: handshake_failure" on Vercel's Node serverless
+// runtime. The SDK's default Node transport works correctly against R2.)
 function getR2Client() {
   const accountId = process.env.R2_ACCOUNT_ID;
   const accessKeyId = process.env.R2_ACCESS_KEY_ID;
@@ -17,8 +21,6 @@ function getR2Client() {
   return new S3Client({
     region: "auto",
     endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-    forcePathStyle: true,
-    requestHandler: new FetchHttpHandler({ keepAlive: false }),
     credentials: {
       accessKeyId,
       secretAccessKey,
