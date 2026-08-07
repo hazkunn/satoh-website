@@ -3,15 +3,18 @@ import {
   GetObjectCommand,
   PutObjectCommand,
 } from "@aws-sdk/client-s3";
+import { NodeHttpHandler } from "@smithy/node-http-handler";
+import https from "node:https";
 
 const NoSuchKeyErrorNames = new Set(["NoSuchKey", "NotFound"]);
 
 // R2 is S3-compatible. Configuration follows Cloudflare's official
 // aws-sdk-js-v3 guide: https://developers.cloudflare.com/r2/examples/aws-sdk-js-v3/
-// We intentionally do NOT set forcePathStyle or a custom requestHandler.
-// (Forcing path-style + a custom handler previously caused "fetch failed"
-// and "SSL alert number 40: handshake_failure" on Vercel's Node serverless
-// runtime. The SDK's default Node transport works correctly against R2.)
+//
+// Vercel production previously failed with BOTH:
+//   - FetchHttpHandler -> "TypeError: fetch failed"
+//   - SDK default handler on Node 20.20.2 -> "write EPROTO ... SSL alert number 40"
+// See lib/r2.ts for the full fix (Node 22.x + NodeHttpHandler with https.Agent).
 function getR2Client() {
   const accountId = process.env.R2_ACCOUNT_ID;
   const accessKeyId = process.env.R2_ACCESS_KEY_ID;
@@ -19,7 +22,7 @@ function getR2Client() {
 
   if (!accountId || !accessKeyId || !secretAccessKey) {
     throw new Error(
-      "Missing R2 credentials. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, and R2_SECRET_ACCESS_KEY in your .env.local"
+      "Missing R2 credentials. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, and R2_SECRET_ACCESS_KEY in your Vercel env (Production) and .env.local"
     );
   }
 
@@ -30,6 +33,17 @@ function getR2Client() {
       accessKeyId,
       secretAccessKey,
     },
+    requestHandler: new NodeHttpHandler({
+      httpsAgent: new https.Agent({
+        keepAlive: true,
+        maxSockets: 50,
+        keepAliveMsecs: 1000,
+      }),
+      connectionTimeout: 5000,
+      socketTimeout: 10000,
+    }),
+    retryMode: "standard",
+    maxAttempts: 3,
   });
 }
 

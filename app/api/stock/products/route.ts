@@ -64,9 +64,20 @@ export async function GET(request: NextRequest) {
       updatedAt: data.updatedAt,
     });
   } catch (err) {
+    const msg = String(err);
+    const isHandshake =
+      msg.includes("handshake") ||
+      msg.includes("EPROTO") ||
+      msg.includes("alert number 40");
     console.error("[api/stock/products] Failed to read stock from R2:", err);
     return NextResponse.json(
-      { error: "在庫データの読み込みに失敗しました", detail: String(err) },
+      {
+        error: "在庫データの読み込みに失敗しました",
+        detail: msg,
+        hint: isHandshake
+          ? "R2 TLS handshake failed. Ensure Vercel is running Node 22.x (engines.node) and lib/r2*.ts uses NodeHttpHandler."
+          : undefined,
+      },
       { status: 500 }
     );
   }
