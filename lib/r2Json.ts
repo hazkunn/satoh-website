@@ -3,9 +3,25 @@ import {
   GetObjectCommand,
   PutObjectCommand,
 } from "@aws-sdk/client-s3";
+import { NodeHttpHandler } from "@smithy/node-http-handler";
+import type { SecureVersion } from "node:tls";
+import https from "node:https";
 
 const NoSuchKeyErrorNames = new Set(["NoSuchKey", "NotFound"]);
 
+// R2 is S3-compatible. Configuration follows Cloudflare's official
+// aws-sdk-js-v3 guide: https://developers.cloudflare.com/r2/examples/aws-sdk-js-v3/
+//
+// Vercel production previously failed with BOTH:
+//   - FetchHttpHandler -> "TypeError: fetch failed"
+//   - SDK default handler on Node 20.20.2 -> "write EPROTO ... SSL alert number 40"
+// Root cause was Node 20's OpenSSL + keepAlive/reused TLS socket handling
+// against R2 on Vercel's Lambda (iad1). Fix:
+//   1. Pin Node to 22.x (engines in package.json) — newer OpenSSL.
+//   2. Use NodeHttpHandler with an explicit https.Agent and standard retries.
+//      This is the recommended stable transport for Node serverless (not fetch).
+// WARNING: Do NOT remove the requestHandler below. A bare S3Client regresses
+// production to "SSL alert number 40" again — this happened with commit 9718b56.
 function getR2Client() {
   const accountId = process.env.R2_ACCOUNT_ID;
   const accessKeyId = process.env.R2_ACCESS_KEY_ID;
@@ -13,9 +29,23 @@ function getR2Client() {
 
   if (!accountId || !accessKeyId || !secretAccessKey) {
     throw new Error(
-      "Missing R2 credentials. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, and R2_SECRET_ACCESS_KEY in your .env.local"
+      "Missing R2 credentials. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, and R2_SECRET_ACCESS_KEY in your Vercel env (Production) and .env.local"
     );
   }
+
+  const requestHandler = new NodeHttpHandler({
+    httpsAgent: new https.Agent({
+      keepAlive: true,
+      maxSockets: 50,
+      keepAliveMsecs: 1000,
+      // R2's edge negotiates TLS 1.2+ with Cloudflare's supported suites.
+      // Explicitly requiring >= 1.2 avoids older cipher negotiation that some
+      // serverless runtimes pick by default.
+      minVersion: "TLSv1.2" as SecureVersion,
+    }),
+    connectionTimeout: 5000,
+    socketTimeout: 10000,
+  });
 
   return new S3Client({
     region: "auto",
@@ -24,6 +54,9 @@ function getR2Client() {
       accessKeyId,
       secretAccessKey,
     },
+    requestHandler,
+    retryMode: "standard",
+    maxAttempts: 3,
   });
 }
 
