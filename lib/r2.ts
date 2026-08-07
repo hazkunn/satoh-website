@@ -1,19 +1,6 @@
 import { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { NodeHttpHandler } from "@smithy/node-http-handler";
-import https from "node:https";
 
-// R2 is S3-compatible. Configuration follows Cloudflare's official
-// aws-sdk-js-v3 guide: https://developers.cloudflare.com/r2/examples/aws-sdk-js-v3/
-//
-// Vercel production previously failed with BOTH:
-//   - FetchHttpHandler -> "TypeError: fetch failed"
-//   - SDK default handler on Node 20.20.2 -> "write EPROTO ... SSL alert number 40"
-// Root cause was Node 20's OpenSSL + keepAlive/reused TLS socket handling
-// against R2 on Vercel's Lambda (iad1). Fix:
-//   1. Pin Node to 22.x (engines in package.json) — newer OpenSSL.
-//   2. Use NodeHttpHandler with an explicit https.Agent and standard retries.
-// This is the recommended stable transport for Node serverless (not fetch).
 function getR2Client() {
   const accountId = process.env.R2_ACCOUNT_ID;
   const accessKeyId = process.env.R2_ACCESS_KEY_ID;
@@ -21,7 +8,7 @@ function getR2Client() {
 
   if (!accountId || !accessKeyId || !secretAccessKey) {
     throw new Error(
-      "Missing R2 credentials. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, and R2_SECRET_ACCESS_KEY in your Vercel env (Production) and .env.local"
+      "Missing R2 credentials. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, and R2_SECRET_ACCESS_KEY in your .env.local"
     );
   }
 
@@ -32,17 +19,6 @@ function getR2Client() {
       accessKeyId,
       secretAccessKey,
     },
-    requestHandler: new NodeHttpHandler({
-      httpsAgent: new https.Agent({
-        keepAlive: true,
-        maxSockets: 50,
-        keepAliveMsecs: 1000,
-      }),
-      connectionTimeout: 5000,
-      socketTimeout: 10000,
-    }),
-    retryMode: "standard",
-    maxAttempts: 3,
   });
 }
 
